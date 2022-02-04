@@ -8,4 +8,4 @@ graph: graph.c
 .PHONY: clean
 
 clean:
-		${RM} main
+		${RM} graph 
