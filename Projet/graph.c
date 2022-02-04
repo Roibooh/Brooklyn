@@ -53,10 +53,11 @@ void add_edge(struct graph *graph, size_t source, size_t destination)
 
 void print_graph(struct graph* graph)
 {
+    printf("order: %lu\n", graph->order);
     for (size_t vertex = 0; vertex < graph->order; vertex++)
     {
         struct node* tmp = graph->adjlists[vertex];
-        printf("\n Vertex %lu\n: ", vertex);
+        printf("Vertex %lu\n: ", vertex);
         while (tmp)
         {
             printf("%i -> ", tmp->vertex);
@@ -66,45 +67,64 @@ void print_graph(struct graph* graph)
     }
 }
 
-//only use for the first line of a file
-size_t to_num_1(const char* line)
+struct graph* load_graph(const char* file)
 {
-    int i = 0;
-    while (line[i] != 0)
-        i++;
+    FILE* fp = fopen(file, "r");
+    if (fp == NULL)
+        err(1, "load_graph: error in fopen");
+    char word[100];
+    struct graph* g;
 
-}
-struct graph* load_graph(const char* path)
-{
-    struct graph* new_graph;
-    FILE* file = fopen(path, "r");
-    if (!file)
-        errx(-1, "load_graph: file can't be read");
 
-    //int first = 1;
-    //char *source, *destination;
-    char *line = calloc(50, sizeof(char));
-    while (fscanf(file, "%[^\n] ", line) != EOF)
+    int source;
+    int destination;
+
+    int s = 0;
+    int d = 0;
+    while (fscanf(fp, "%99s", word) == 1)
     {
-        printf("> %i\n", atoi(line));/*
-        if (first)
-            new_graph = init_graph((size_t)atoi(line));
+        if (s)
+        {
+            //source
+            s = 0;
+            source = atoi(word); //cast to number
+        }
+        else if (d)
+        {
+            d = 0;
+            destination = atoi(word);
+            //destination
+        }
         else
-            */
+        {
+            //first one
+            //printf("order: %i\n", atoi(word));
+            g = init_graph(atoi(word)); //cast to number
+            s = 1;
+            d = 1;
+        }
+         if (d == 0 && s == 0)
+        {
+            if ((size_t)source >= g->order || (size_t)destination >= g->order)
+                errx(1, "load_graph: node number > order");
+            s = 1;
+            d = 1;
+            //printf("%i --> %i\n", source, destination);
+            add_edge(g, source, destination);
+        }
     }
-
-    free(line);
+    fclose(fp);
+    return g;
 }
 
-int main()
+int main(int argc, char** argv)
 {
-    struct graph* graph = init_graph(4);
-    add_edge(graph, 0, 1);
-    add_edge(graph, 0, 2);
-    add_edge(graph, 0, 3);
-    add_edge(graph, 1, 2);
-
-    load_graph("test.txt");
+    if (argc != 2)
+        errx(1, "wrong number of args");
+    
+    struct graph* g = load_graph(argv[1]);
+    
+    print_graph(g);
 
     return 0;
 }
