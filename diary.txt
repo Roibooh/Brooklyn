@@ -1,0 +1,7 @@
+Dimanche 6:
+Titouan Implémente un fonction basique de print pour visualiser les chemins de l'algo
+
+
+Mardi 8:
+Titouan fait la liste des transports et les met en .txt pour les implémenter au graph.
+Guillaume implémente Fibonacci heap
