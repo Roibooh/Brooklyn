@@ -4,4 +4,6 @@ Titouan Implémente un fonction basique de print pour visualiser les chemins de 
 
 Mardi 8:
 Titouan fait la liste des transports et les met en .txt pour les implémenter au graph.
+	fait la liste des station velo
+	fait une fonction pour les relier toutes entre elles
 Guillaume implémente Fibonacci heap

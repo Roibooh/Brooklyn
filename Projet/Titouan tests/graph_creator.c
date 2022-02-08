@@ -75,8 +75,3 @@ void create_walk_graph(size_t height, size_t width, int walking)
 
     fclose(file);
 }
-
-int main()
-{
-    create_walk_graph(15, 20, 90);
-}
