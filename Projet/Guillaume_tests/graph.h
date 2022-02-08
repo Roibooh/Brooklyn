@@ -11,6 +11,7 @@ struct node
     struct node* next;
     //weight of the edge between the node and the coresponding adjacent node
     size_t weight;
+    int transport;
 };
 
 //structut for non orriented weighted graph using an adjacen

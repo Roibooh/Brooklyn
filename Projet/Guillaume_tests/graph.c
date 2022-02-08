@@ -4,6 +4,16 @@
 
 #include "graph.h"
 
+#define TRUE 1
+#define FALSE 0
+
+#define UNDEFINED -1
+#define WALK 0
+#define BUS 1
+#define METRO 2
+#define BIKE 3
+#define TRAM 4
+
 //init a node numbered "vertex"
 struct node* init_node(size_t vertex)
 {
@@ -11,7 +21,8 @@ struct node* init_node(size_t vertex)
     new_node->vertex = vertex;
     new_node->next = NULL;
     new_node->weight = 0;
-    
+    new_node->transport = UNDEFINED;
+
     return new_node;
 }
 //init graph
@@ -40,19 +51,24 @@ void free_graph(struct graph* g)
 }
 
 void add_edge(struct graph *graph, size_t source, size_t destination, \
-        int weight)
+        size_t weight, int transport, int directioned)
 {
     // Add from source to dest
     struct node* new_node = init_node(destination);
     new_node->next = graph->adjlists[source];
     new_node->weight = weight;
+    new_node->transport = transport;
     graph->adjlists[source] = new_node;
-
-    // Add from dest to source
-    new_node = init_node(source);
-    new_node->next = graph->adjlists[destination];
-    new_node->weight = weight;
-    graph->adjlists[destination] = new_node;
+    
+    if (directioned == TRUE)
+    {
+        // Add from dest to source
+        new_node = init_node(source);
+        new_node->next = graph->adjlists[destination];
+        new_node->weight = weight;
+        new_node->transport = transport;
+        graph->adjlists[destination] = new_node;
+    }
 }
 
 void print_graph(struct graph* graph)
@@ -70,15 +86,14 @@ void print_graph(struct graph* graph)
         printf("\n");
     }
 }
-//load a graph from a file
-struct graph* load_graph(const char* file)
+//load the main graph from a file
+struct graph* load_main(const char* file)
 {
     FILE* fp = fopen(file, "r");
     if (fp == NULL)
-        err(1, "load_graph: error in fopen");
+        err(1, "load_main: error in fopen");
     char word[25];
     struct graph* g;
-
 
     size_t source;
     size_t destination;
@@ -109,7 +124,6 @@ struct graph* load_graph(const char* file)
         else
         {
             //first one
-            //printf("order: %i\n", atoi(word));
             g = init_graph(atoi(word)); //cast to number
             s = 1;
             d = 1;
@@ -122,10 +136,63 @@ struct graph* load_graph(const char* file)
             s = 1;
             d = 1;
             w = 1;
-            //printf("%i --> %i\n", source, destination);
-            add_edge(g, source, destination, weight);
+            add_edge(g, source, destination, weight, WALK, TRUE);
         }
     }
     fclose(fp);
+    return g;
+}
+void load_transport(struct graph* g, const char* file, int transport)
+{
+    FILE* fp = fopen(file, "r");
+    if (fp == NULL)
+        err(1, "load_transport: error in fopen");
+    
+    char word[25];
+    size_t source;
+    size_t destination;
+    int weight;
+
+    int s = 1;
+    int d = 1;
+    int w = 1;
+    while (fscanf(fp, "%99s", word) == 1)
+    {
+        if (s)
+        {
+            s = 0;
+            source = atoi(word);
+        }
+        else if (d)
+        {
+            d = 0;
+            destination = atoi(word);
+        }
+        else if (w)
+        {
+            w = 0;
+            weight = atoi(word);
+        }
+        if (d == 0 && s == 0 && w == 0)
+        {
+            if (source >= g->order || destination >= g->order)
+                errx(1, "load_graph: node number > order");
+            s = 1;
+            d = 1;
+            w = 1;
+            add_edge(g, source, destination, weight, transport, \
+                    transport == BUS);
+        }
+    }
+}
+struct graph* load_graph(const char* path)
+{
+    char s[100];
+    sprintf(s, "%smain", path);
+    struct graph* g = load_main(s);
+    
+    sprintf(s, "%smetro", path);
+    load_transport(g, s, METRO);
+
     return g;
 }
