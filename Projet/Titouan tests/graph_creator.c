@@ -3,20 +3,20 @@
 #include <err.h>
 #include <string.h>
 
-void print_graph(const char* filename, size_t height, size_t width, int walking)
+void create_walk_graph(size_t height, size_t width, int walking)
 {
-    FILE *file = fopen(filename, "w");
+    FILE *file = fopen("main.txt", "w");
     if(file == NULL)
     {
         err(1, "Could not find or open file!");
     }
 
-    char h[3];
-    char w[3];
-    char m[3];
-    char walk[2];
+    char h[4];
+    char w[4];
+    char m[4];
+    char walk[4];
 
-    size_t max = height*width-1;
+    size_t max = height*width;
     sprintf(m, "%lu", max);
     fputs(m, file);
     fputs("\n", file);
@@ -78,5 +78,5 @@ void print_graph(const char* filename, size_t height, size_t width, int walking)
 
 int main()
 {
-    print_graph("example.txt", 5, 5, 2);
+    create_walk_graph(15, 20, 90);
 }
