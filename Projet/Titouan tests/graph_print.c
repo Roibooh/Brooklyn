@@ -57,6 +57,9 @@ void print_graph(size_t height, size_t width)
 }
 
 
+//------------------------------------------------------------------------------
+
+
 int find_neighbor(int *path, int length, int node)
 {
     int counter = 0;

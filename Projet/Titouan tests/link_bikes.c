@@ -44,7 +44,6 @@ void link_bikes(char* data, char* res, int height, int width, int bike_number, i
     char w[4], node_i[4], node_j[4];
     for(i = 0; i < bike_number-1; i++)
     {
-        printf("node 1 is number %i\n", arr[i]);
         for(j = i+1; j < bike_number; j++)
         {
             weight = give_weight(arr[i], arr[j], height, width);
@@ -61,4 +60,6 @@ void link_bikes(char* data, char* res, int height, int width, int bike_number, i
                 fputs("\n", write_f);
         }
     }
+    fclose(write_f);
+    fclose(read_f);
 }
