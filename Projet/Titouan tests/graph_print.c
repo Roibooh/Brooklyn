@@ -1,7 +1,8 @@
-#include <err.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "graph.h"
 
 #define WALK  "\x1B[31m"
 #define NORMAL  "\x1B[0m"
@@ -57,10 +58,22 @@ void print_graph(size_t height, size_t width)
 }
 
 
+
 //------------------------------------------------------------------------------
 
 
-void find_neighbor(int *path, int length, int node, int grid_width, int *neighbor_1, int *neighbor_2)
+
+void complete_path(struct node *path, size_t graph_size)
+{
+    struct node *result = init_node(path->vertex);
+    struct graph *g = load_main("main.txt");
+
+    //call dijkstra everytime the transport is not walking or metro
+    //then complete de result list 
+}
+
+
+void find_neighbor_arr(int *path, int length, int node, int grid_width, int *neighbor_1, int *neighbor_2)
 {
     int counter = 0;
     while (path[counter] != node && counter < length)
@@ -84,6 +97,33 @@ void find_neighbor(int *path, int length, int node, int grid_width, int *neighbo
     //a refaire avec les liste chainés
 }
 
+
+void find_neighbor_list(struct node *path, size_t node, int grid_width, int *neighbor_1, int *neighbor_2)
+{
+    struct node *pre = NULL;
+    struct node *tmp = path;
+    while (tmp->next->vertex != node && tmp->next != NULL)
+    {
+        tmp = tmp->next;
+        pre = tmp;
+    }
+    if (pre != NULL)
+    {
+        if (pre->vertex == node + 1)
+            *neighbor_1 = 1;
+        if (pre->vertex == node + grid_width)
+            *neighbor_2 = 1;
+    }
+    if (tmp->next != NULL)
+    {
+        if (tmp->next->vertex == node + 1)
+            *neighbor_1 = 1;
+        if (tmp->next->vertex == node + grid_width)
+            *neighbor_2 = 1;
+    }
+}
+
+
 void print_path(int *path, int path_length, int height, int width)
 {
     int y, x;
@@ -93,7 +133,7 @@ void print_path(int *path, int path_length, int height, int width)
         {
             int *neighbor_1 = calloc(sizeof(int), 1);
             int *neighbor_2 = calloc(sizeof(int), 1);
-            find_neighbor(path, path_length, x*width + y, width, neighbor_1, neighbor_2);
+            find_neighbor_list(path, x*width + y, width, neighbor_1, neighbor_2);
             if (x*width + y < 10)
             {
                 if (y != width-1)
@@ -131,7 +171,7 @@ void print_path(int *path, int path_length, int height, int width)
             {
                 int * neighbor_1 = calloc(sizeof(int), 1);
                 int * neighbor_2 = calloc(sizeof(int), 1);
-                find_neighbor(path, path_length, x*width + y, width, neighbor_1, neighbor_2);
+                find_neighbor_list(path, x*width + y, width, neighbor_1, neighbor_2);
                 if (*neighbor_2)
                 {
                     if (y != width-1)
@@ -154,7 +194,6 @@ void print_path(int *path, int path_length, int height, int width)
 
 int main()
 {
-    //int test[3] = {1, 2, 3};
-    int edges[10] = {0, 1, 2, 10, 18, 19, 20, 12, 13, 5};
-    print_path (edges, 10, 4, 8);
+    printf("no prob\n");
+    //print_path (path, 10, 4, 8);
 }
