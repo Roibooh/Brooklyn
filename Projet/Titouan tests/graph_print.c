@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define KRED  "\x1B[31m"
-#define KNRM  "\x1B[0m"
+#define WALK  "\x1B[31m"
+#define NORMAL  "\x1B[0m"
 
 
 void print_graph(size_t height, size_t width)
@@ -60,81 +60,84 @@ void print_graph(size_t height, size_t width)
 //------------------------------------------------------------------------------
 
 
-int find_neighbor(int *path, int length, int node)
+void find_neighbor(int *path, int length, int node, int grid_width, int *neighbor_1, int *neighbor_2)
 {
     int counter = 0;
     while (path[counter] != node && counter < length)
     {
         counter++;
     }
-    if(path[counter] != node)
-        return 0;
-    if (counter == 0)
-        return path[1];
-    if (counter == length-1)
-        return path[length-2];
-    else
-        if (path[counter-1] > path[counter+1])
-            return path[counter-1];
-        else
-            return path[counter+1];
+    if (counter != 0)
+    {
+        if (path[counter-1] == node + 1)
+            *neighbor_1 = 1;
+        if (path[counter-1] == node + grid_width)
+            *neighbor_2 = 1;
+    }
+    if (counter != length-1)
+    {
+        if (path[counter+1] == node + 1)
+            *neighbor_1 = 1;
+        if (path[counter+1] == node + grid_width)
+            *neighbor_2 = 1;
+    }
     //a refaire avec les liste chainés
-    // et rajouter le cas où les deux voisins sont plus grands que node
 }
 
-void print_path(int *path, int path_length, size_t height, size_t width)
+void print_path(int *path, int path_length, int height, int width)
 {
-    size_t y, x;
-    size_t i_neighbor;
+    int y, x;
     for(x = 0; x < height; ++x)
     {
         for(y = 0; y < width; ++y)
         {
-            i_neighbor = find_neighbor(path, path_length, x*width + y);
-            size_t neighbor = (size_t)i_neighbor;
+            int *neighbor_1 = calloc(sizeof(int), 1);
+            int *neighbor_2 = calloc(sizeof(int), 1);
+            find_neighbor(path, path_length, x*width + y, width, neighbor_1, neighbor_2);
             if (x*width + y < 10)
             {
                 if (y != width-1)
-                    if (neighbor == x*width + y + 1)
-                        printf("( %lu )%s---%s", x*width + y, KRED, KNRM);
+                    if (*neighbor_1)
+                        printf("( %u )%s---%s", x*width + y, WALK, NORMAL);
                     else
-                        printf("( %lu )---", x*width + y);
+                        printf("( %u )---", x*width + y);
                 else
-                    printf("( %lu )\n", x*width + y);
+                    printf("( %u )\n", x*width + y);
             }
             else if (x*width + y < 100)
             {
                 if (y != width-1)
-                    if (neighbor == x*width + y + 1)
-                        printf("(%lu )%s---%s", x*width + y, KRED, KNRM);
+                    if (*neighbor_1)
+                        printf("(%u )%s---%s", x*width + y, WALK, NORMAL);
                     else
-                        printf("(%lu )---", x*width + y);
+                        printf("(%u )---", x*width + y);
                 else
-                    printf("(%lu )\n", x*width + y);
+                    printf("(%u )\n", x*width + y);
             }
             else
             {
                 if (y != width-1)
-                    if (neighbor == x*width + y + 1)
-                        printf("(%lu)%s---%s", x*width + y, KRED, KNRM);
+                    if (*neighbor_1)
+                        printf("(%u)%s---%s", x*width + y, WALK, NORMAL);
                     else
-                        printf("(%lu)---", x*width + y);
+                        printf("(%u)---", x*width + y);
                 else
-                    printf("(%lu)\n", x*width + y);
+                    printf("(%u)\n", x*width + y);
             }
         }
         if (x != height-1)
         {
             for(y = 0; y < width; ++y)
             {
-                i_neighbor = find_neighbor(path, path_length, x*width + y);
-                size_t neighbor = (size_t)i_neighbor;
-                if (neighbor == (x+1)*width + y)
+                int * neighbor_1 = calloc(sizeof(int), 1);
+                int * neighbor_2 = calloc(sizeof(int), 1);
+                find_neighbor(path, path_length, x*width + y, width, neighbor_1, neighbor_2);
+                if (*neighbor_2)
                 {
                     if (y != width-1)
-                        printf("%s  |     %s", KRED, KNRM);
+                        printf("%s  |     %s", WALK, NORMAL);
                     else
-                        printf("%s  |\n%s", KRED, KNRM);
+                        printf("%s  |\n%s", WALK, NORMAL);
                 }
                 else
                 {
@@ -151,7 +154,7 @@ void print_path(int *path, int path_length, size_t height, size_t width)
 
 int main()
 {
-    //int test[3] = {8, 7, 2};
+    //int test[3] = {1, 2, 3};
     int edges[10] = {0, 1, 2, 10, 18, 19, 20, 12, 13, 5};
-    print_path(edges, 10, 4, 8);
+    print_path (edges, 10, 4, 8);
 }
