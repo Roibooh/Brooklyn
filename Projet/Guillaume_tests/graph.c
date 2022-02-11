@@ -1,18 +1,8 @@
 #include <err.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "macro.h"
 #include "graph.h"
-
-#define TRUE 1
-#define FALSE 0
-
-#define UNDEFINED -1
-#define WALK 0
-#define BUS 1
-#define METRO 2
-#define BIKE 3
-#define TRAM 4
 
 //init a node numbered "vertex"
 struct node* init_node(size_t vertex)
@@ -188,11 +178,11 @@ void load_transport(struct graph* g, const char* file, int transport)
 struct graph* load_graph(const char* path)
 {
     char s[100];
-    sprintf(s, "%smain", path);
+    sprintf(s, "%smain.txt", path);
     struct graph* g = load_main(s);
     
-    sprintf(s, "%smetro", path);
-    load_transport(g, s, METRO);
+    sprintf(s, "%smetro.txt", path);
+   // load_transport(g, s, METRO);
 
     return g;
 }

@@ -19,7 +19,7 @@ int main(int argc, char** argv)
         errx(1, "dest > order");
 
     struct node* n = dijkstra(g, s, d);
-    
+    printf("\n");
     while (n != NULL)
     {
         printf("%lu --> ", n->vertex);

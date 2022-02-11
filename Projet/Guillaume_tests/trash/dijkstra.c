@@ -2,7 +2,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include "graph.h"
-#include "priority_queue.h"
+#include "fibo_heap.h"
 #include "macro.h"
 
 //return the closest node not marked
@@ -47,7 +47,7 @@ struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
 {
     size_t* distances = malloc(graph->order * sizeof(size_t));
     size_t* list_prev = malloc(graph->order * sizeof(size_t));
-    struct queue_elt* queue = NULL;
+    struct fibo_heap* q = init_fibo_heap();
     //initialize lists to base value
     distances[source] = 0;
     
@@ -58,56 +58,56 @@ struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
             distances[v] = ULONG_MAX;
             list_prev[v] = ULONG_MAX;
         }
-        insert(&queue, v, distances[v]);
+        insert(q, v, distances[v]);
     
     }
+    display(q);
     for (size_t i = 0; i < graph->order; i++)
     {
         //get the closest node accessible
-        size_t min = extract_min(&queue);
-        //printf("extracted: %lu, now: %li\n", min, queue->node);
+        struct fibo_node* min = extract_min(q);
+        display(q);
+        //printf("extracted %lu, key %lu __ ", min->value, min->key);
         //if it is the desired destination, can return
-        if (min == destination)
+        if (min->value == destination)
         {
-            printf("found !\n");
             struct node* r_n = init_node(destination);
             struct node* tmp = r_n;
             destination = list_prev[destination];
-            while (distances[destination] != 0)
+            while (destination < graph->order)
             {
                 add_node(tmp, destination);
                 tmp = tmp->next;
                 destination = list_prev[destination];
             }
-            add_node(tmp, 0);
-            
             reverse(&r_n);
             free(distances);
             free(list_prev);
-            free_queue(queue);
+            free_fibo_heap(q);
             return r_n;
         }
         //get the nodes adjacent to vertex_min_dist
-        struct node* adj = graph->adjlists[min];
+        struct node* adj = graph->adjlists[min->value];
         //goes through all nodes adjacent to verrtex_min_dist
         while (adj)
         {
             //compute theoritical distance
-            size_t tmp = distances[min] + adj->weight;
+            size_t tmp = distances[min->value] + adj->weight;
             //if it is better than what is already known, update
             if (tmp < distances[adj->vertex])
             {
                 distances[adj->vertex] = tmp;
-                list_prev[adj->vertex] = min;
-                //printf("change prio of %lu to %lu\n", adj->vertex, tmp);
-                change_prio(&queue, adj->vertex, tmp);
-                
+                list_prev[adj->vertex] = min->value;
+                printf("change %lu key to %lu __ ", adj->vertex, tmp);
+                find(q, q->min, adj->vertex, tmp);
+                printf("  min %lu : %lu ", q->min->value, q->min->key);
+                display(q);
             }
             adj = adj->next;
         }
     }
     free(distances);
-    free_queue(queue);
+    free_fibo_heap(q);
     free(list_prev);
     return NULL;
 }
