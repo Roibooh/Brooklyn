@@ -65,10 +65,12 @@ void free_queue(struct queue_elt* queue)
 {
     if (queue != NULL)
     {
-        if (queue->next != NULL)
-            free_queue(queue->next);
-        free(queue);
+        struct queue_elt* tmp;
+        while (queue != NULL)
+        {
+            tmp = queue;
+            queue = queue->next;
+            free(tmp);
+        }
     }
 }
-
-

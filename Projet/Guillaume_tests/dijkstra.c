@@ -1,56 +1,56 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <stdio.h>
+#include <time.h>
 #include "graph.h"
 #include "priority_queue.h"
 #include "macro.h"
 
-//return the closest node not marked
-size_t get_min_in_Q(int* vertex_set_Q, size_t* distances, size_t order)
+struct node* build_node(struct graph* graph, size_t source, size_t dest)
 {
-    size_t min_dist = ULONG_MAX;
-    size_t vertex_min_dist = 0;
-
-    for (size_t i = 0; i < order; i++)
+    struct node* r = init_node(dest);
+    struct node* tmp = graph->adjlists[source];
+    while (tmp->vertex != dest)
     {
-        if (vertex_set_Q[i] && distances[i] < min_dist)
-        {
-            min_dist = distances[i];
-            vertex_min_dist = i;
-        }
+        tmp = tmp->next;
     }
-    return vertex_min_dist;
+    r->weight = tmp->weight;
+    r->transport = tmp->transport;
+    return r;
 }
-
-void add_node(struct node* n, size_t destination)
+struct node* build_return(struct graph* graph, size_t source, \
+        size_t destination, size_t* list_prev)
 {
-    struct node* nn = init_node(destination);
-    n->next = nn;
-}
-
-void reverse(struct node** n)
-{
-    struct node* pre = NULL;
-    struct node* cur = *n;
-    struct node* nex = NULL;
-    while (cur != NULL)
+    struct node* null = NULL;
+    struct node** last = &null;
+    struct node** cur;
+    struct node* tmp;
+    size_t cur_index = list_prev[destination];
+    while(destination != source)
     {
-        nex = cur->next;
-        cur->next = pre;
-        pre = cur;
-        cur = nex;
-    }
-    *n = pre;
-}
+        tmp = build_node(graph, cur_index, destination);
+        tmp->next = *last;
+        cur = &tmp;
+        *last = *cur;
 
+        destination = cur_index;
+        cur_index = list_prev[destination];
+    }
+    tmp = init_node(source);
+    tmp->next = *last;
+    return tmp;
+}
+/* 
+**  source != destination
+*/
 struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
 {
     size_t* distances = malloc(graph->order * sizeof(size_t));
     size_t* list_prev = malloc(graph->order * sizeof(size_t));
     struct queue_elt* queue = NULL;
+    struct node* r_node = NULL; 
     //initialize lists to base value
     distances[source] = 0;
-    
     for (size_t v = 0; v < graph->order; v++)
     {
         if (v != source)
@@ -59,33 +59,17 @@ struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
             list_prev[v] = ULONG_MAX;
         }
         insert(&queue, v, distances[v]);
-    
     }
+
     for (size_t i = 0; i < graph->order; i++)
     {
         //get the closest node accessible
         size_t min = extract_min(&queue);
-        //printf("extracted: %lu, now: %li\n", min, queue->node);
         //if it is the desired destination, can return
         if (min == destination)
         {
-            printf("found !\n");
-            struct node* r_n = init_node(destination);
-            struct node* tmp = r_n;
-            destination = list_prev[destination];
-            while (distances[destination] != 0)
-            {
-                add_node(tmp, destination);
-                tmp = tmp->next;
-                destination = list_prev[destination];
-            }
-            add_node(tmp, 0);
-            
-            reverse(&r_n);
-            free(distances);
-            free(list_prev);
-            free_queue(queue);
-            return r_n;
+            r_node = build_return(graph, source, destination, list_prev);
+            break;
         }
         //get the nodes adjacent to vertex_min_dist
         struct node* adj = graph->adjlists[min];
@@ -99,9 +83,7 @@ struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
             {
                 distances[adj->vertex] = tmp;
                 list_prev[adj->vertex] = min;
-                //printf("change prio of %lu to %lu\n", adj->vertex, tmp);
                 change_prio(&queue, adj->vertex, tmp);
-                
             }
             adj = adj->next;
         }
@@ -109,5 +91,5 @@ struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
     free(distances);
     free_queue(queue);
     free(list_prev);
-    return NULL;
+    return r_node;
 }
