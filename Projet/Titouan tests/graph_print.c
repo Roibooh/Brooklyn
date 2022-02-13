@@ -4,11 +4,16 @@
 
 #include "graph.h"
 
-#define WALK  "\x1B[31m"
-#define NORMAL  "\x1B[0m"
+#define CWALK  "\x1B[31m" // red
+#define CMETRO  "\x1B[34m" // blue
+#define CBIKE  "\x1B[33m" // yellow
+#define CBUS  "\x1B[32m" // green
+#define CTRAM  "\x1B[35m" // magenta
+#define CNORMAL  "\x1B[0m" // default
 
 
-void print_graph(size_t height, size_t width)
+
+void print_graph_into_file(size_t height, size_t width)
 {
     size_t y, x;
     char n[5];
@@ -63,137 +68,354 @@ void print_graph(size_t height, size_t width)
 
 
 
-void complete_path(struct node *path, size_t graph_size)
+void print_list(struct node* path)
 {
+    printf("0 is Walk\n1 is Bus\n2 is Metro\n3 is Bike\n4 is Tram\n\n");
+    struct node* tmp = path;
+    printf("%li", tmp->vertex);
+    while(tmp->next!=NULL)
+    {
+        tmp = tmp->next;
+        printf(" -(%i)-> %li", tmp->transport, tmp->vertex);
+    }
+    printf("\n");
+    struct node* tmp2 = path;
+    printf("\n%li", tmp2->vertex);
+    while(tmp2->next!=NULL)
+    {
+        tmp2 = tmp2->next;
+        printf(" ---> %li", tmp2->vertex);
+    }
+    printf("\n");
+}
+
+
+struct node* complete_btb_path(size_t origin, size_t dest, size_t g_width, 
+struct node *result, int transport)
+{
+    struct node* res = result;
+    if(origin < dest)
+    {
+        while(origin+g_width < dest)
+        {
+            origin+=g_width;
+            struct node* n = init_node(origin);
+            n->transport = transport;
+            res->next = n;
+            res = res->next;
+        }
+        if(origin%g_width < dest%g_width)
+        {
+            while(origin < dest)
+            {
+                origin+=1;
+                struct node* n = init_node(origin);
+                n->transport = transport;
+                res->next = n;
+                res = res->next;
+            }
+        }
+        else
+        {
+            origin+=g_width;
+            struct node* n = init_node(origin);
+            n->transport = transport;
+            res->next = n;
+            res = res->next;
+            while(origin > dest)
+            {
+                origin-=1;
+                struct node* n = init_node(origin);
+                n->transport = transport;
+                res->next = n;
+                res = res->next;
+            }
+        }
+    }
+    else
+    {
+        while(origin-g_width > dest)
+        {
+            origin-=g_width;
+            struct node* n = init_node(origin);
+            n->transport = transport;
+            res->next = n;
+            res = res->next;
+        }
+        if(origin%g_width > dest%g_width)
+        {
+            while(origin > dest)
+            {
+                origin-=1;
+                struct node* n = init_node(origin);
+                n->transport = transport;
+                res->next = n;
+                res = res->next;
+            }
+        }
+        else
+        {
+            origin-=g_width;
+            struct node* n = init_node(origin);
+            n->transport = transport;
+            res->next = n;
+            res = res->next;
+            while(origin < dest)
+            {
+                origin+=1;
+                struct node* n = init_node(origin);
+                n->transport = transport;
+                res->next = n;
+                res = res->next;
+            }
+        }
+    }
+    return result->next;
+}
+
+
+
+struct node* complete_path(struct node *path, size_t graph_width)
+{
+    struct node *tmp = path;    
     struct node *result = init_node(path->vertex);
-    struct graph *g = load_main("main.txt");
+    struct node *res = result;
+    size_t origin;
+    while(tmp->next != NULL)
+    {
+        origin = tmp->vertex;
+        tmp = tmp->next;
 
-    //call dijkstra everytime the transport is not walking or metro
-    //then complete de result list 
+        switch (tmp->transport)
+        {
+            case WALK:
+            {
+                struct node* n = init_node(tmp->vertex);
+                n->transport = WALK;
+                res->next = n;
+                res = res->next;
+                break;
+            }
+            case BIKE:
+            {
+                res->next = complete_btb_path(origin, tmp->vertex, 
+                graph_width, res, BIKE);
+                while(res->next != NULL)
+                    res = res->next;
+                break;
+            }
+            case TRAM:
+            {
+                res->next = complete_btb_path(origin, tmp->vertex, 
+                graph_width, res, TRAM);
+                while(res->next != NULL)
+                    res = res->next;
+                break;
+            }
+            case BUS:
+            {
+                res->next = complete_btb_path(origin, tmp->vertex, 
+                graph_width, res, BUS);
+                while(res->next != NULL)
+                    res = res->next;
+                break;
+            }
+            case METRO:
+            {
+                struct node* n = init_node(tmp->vertex);
+                n->transport = METRO;
+                res->next = n;
+                res = res->next;
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    return result;
 }
 
 
-void find_neighbor_arr(int *path, int length, int node, int grid_width, int *neighbor_1, int *neighbor_2)
-{
-    int counter = 0;
-    while (path[counter] != node && counter < length)
-    {
-        counter++;
-    }
-    if (counter != 0)
-    {
-        if (path[counter-1] == node + 1)
-            *neighbor_1 = 1;
-        if (path[counter-1] == node + grid_width)
-            *neighbor_2 = 1;
-    }
-    if (counter != length-1)
-    {
-        if (path[counter+1] == node + 1)
-            *neighbor_1 = 1;
-        if (path[counter+1] == node + grid_width)
-            *neighbor_2 = 1;
-    }
-    //a refaire avec les liste chainés
-}
 
-
-void find_neighbor_list(struct node *path, size_t node, int grid_width, int *neighbor_1, int *neighbor_2)
+void find_neighbor_list(struct node *path, size_t node, int grid_width, int *n1_tr, int *n2_tr, int* metro)
 {
     struct node *pre = NULL;
     struct node *tmp = path;
-    while (tmp->next->vertex != node && tmp->next != NULL)
+    while (tmp != NULL && tmp->vertex != node)
     {
-        tmp = tmp->next;
         pre = tmp;
+        tmp = tmp->next;
     }
     if (pre != NULL)
     {
-        if (pre->vertex == node + 1)
-            *neighbor_1 = 1;
-        if (pre->vertex == node + grid_width)
-            *neighbor_2 = 1;
+        if (pre->vertex == node + 1 && tmp != NULL){
+            *n1_tr = tmp->transport;
+        }
+        if (pre->vertex == node + grid_width && tmp != NULL){
+            *n2_tr = tmp->transport;
+        }
+        if (pre->next != NULL && pre->next->transport == METRO){
+            *metro = 1;
+        }
     }
-    if (tmp->next != NULL)
+    if (tmp != NULL && tmp->next != NULL)
     {
-        if (tmp->next->vertex == node + 1)
-            *neighbor_1 = 1;
-        if (tmp->next->vertex == node + grid_width)
-            *neighbor_2 = 1;
+        if (tmp->next->vertex == node + 1){
+            *n1_tr = tmp->next->transport;
+        }
+        if (tmp->next->vertex == node + grid_width){
+            *n2_tr = tmp->next->transport;
+        }
+        if (tmp->next->transport == METRO || tmp->transport == METRO){
+            *metro = 1;
+        }
     }
 }
 
 
-void print_path(int *path, int path_length, int height, int width)
+
+void symbol(char *s, int size, int* metro)
 {
+    char i[5];
+    sprintf(i, "%i", size);
+    if (size < 10)
+    {
+        if (*metro){
+            strcpy(s, CMETRO);
+            strcat(s, "( ");
+        }
+        else
+            strcpy(s, "( ");
+        strcat(s,i);
+        strcat(s, " )");
+        if (*metro)
+            strcat(s, CNORMAL);
+    }
+    else if (size < 100)
+    {
+        if (*metro){
+            strcpy(s, CMETRO);
+            strcat(s, "(");
+        }
+        else
+            strcpy(s, "(");
+        strcat(s,i);
+        strcat(s, " )");
+        if (*metro)
+            strcat(s, CNORMAL);
+    }
+    else
+    {
+        if (*metro){
+            strcpy(s, CMETRO);
+            strcat(s, "(");
+        }
+        else
+            strcpy(s, "(");
+        strcat(s,i);
+        strcat(s, ")");
+        if (*metro)
+            strcat(s, CNORMAL);
+    } 
+}
+
+
+
+void print_path_terminal(struct node *path_incomplete, int height, int width)
+{
+    struct node* path = complete_path(path_incomplete, width);
+    print_list(path);
+    printf("\n\n");
     int y, x;
+    char s[20];
+    int *n1_tr = calloc(sizeof(int), 1);
+    int *n2_tr = calloc(sizeof(int), 1);
+    int *is_metro = calloc(sizeof(int), 1);
     for(x = 0; x < height; ++x)
     {
         for(y = 0; y < width; ++y)
         {
-            int *neighbor_1 = calloc(sizeof(int), 1);
-            int *neighbor_2 = calloc(sizeof(int), 1);
-            find_neighbor_list(path, x*width + y, width, neighbor_1, neighbor_2);
-            if (x*width + y < 10)
+            *is_metro = 0;
+            *n1_tr = UNDEFINED;
+            *n2_tr = UNDEFINED;
+            find_neighbor_list(path, x*width + y, width, n1_tr, n2_tr, is_metro);
+            symbol(s, x*width + y, is_metro);
+            if (y != width-1)
             {
-                if (y != width-1)
-                    if (*neighbor_1)
-                        printf("( %u )%s---%s", x*width + y, WALK, NORMAL);
-                    else
-                        printf("( %u )---", x*width + y);
-                else
-                    printf("( %u )\n", x*width + y);
-            }
-            else if (x*width + y < 100)
-            {
-                if (y != width-1)
-                    if (*neighbor_1)
-                        printf("(%u )%s---%s", x*width + y, WALK, NORMAL);
-                    else
-                        printf("(%u )---", x*width + y);
-                else
-                    printf("(%u )\n", x*width + y);
+                switch (*n1_tr)
+                {
+                case WALK:
+                    printf("%s%s---%s", s, CWALK, CNORMAL);
+                    break;
+                case TRAM:
+                    printf("%s%s---%s", s, CTRAM, CNORMAL);
+                    break;
+                case BIKE:
+                    printf("%s%s---%s", s, CBIKE, CNORMAL);
+                    break;
+                case BUS:
+                    printf("%s%s---%s", s, CBUS, CNORMAL);
+                    break;
+                default:
+                    printf("%s---", s);
+                }
             }
             else
-            {
-                if (y != width-1)
-                    if (*neighbor_1)
-                        printf("(%u)%s---%s", x*width + y, WALK, NORMAL);
-                    else
-                        printf("(%u)---", x*width + y);
-                else
-                    printf("(%u)\n", x*width + y);
-            }
+                printf("%s\n", s);
         }
         if (x != height-1)
         {
             for(y = 0; y < width; ++y)
             {
-                int * neighbor_1 = calloc(sizeof(int), 1);
-                int * neighbor_2 = calloc(sizeof(int), 1);
-                find_neighbor_list(path, x*width + y, width, neighbor_1, neighbor_2);
-                if (*neighbor_2)
+                *n1_tr = UNDEFINED;
+                *n2_tr = UNDEFINED;
+                *is_metro = 0;
+                find_neighbor_list(path, x*width + y, width, n1_tr, n2_tr, is_metro);
+                if (y != width-1)
                 {
-                    if (y != width-1)
-                        printf("%s  |     %s", WALK, NORMAL);
-                    else
-                        printf("%s  |\n%s", WALK, NORMAL);
+                    switch (*n2_tr)
+                    {
+                        case WALK:
+                            printf("%s  |     %s", CWALK, CNORMAL);
+                            break;
+                        case TRAM:
+                            printf("%s  |     %s", CTRAM, CNORMAL);
+                            break;
+                        case BIKE:
+                            printf("%s  |     %s", CBIKE, CNORMAL);
+                            break;
+                        case BUS:
+                            printf("%s  |     %s", CBUS, CNORMAL);
+                            break;                    
+                        default:
+                            printf("  |     ");
+                    }
                 }
                 else
                 {
-                    if (y != width-1)
-                        printf("  |     ");
-                    else
-                        printf("  |\n");
+                    switch (*n2_tr)
+                    {
+                        case WALK:
+                            printf("%s  |\n %s", CWALK, CNORMAL);
+                            break;
+                        case TRAM:
+                            printf("%s  |\n%s", CTRAM, CNORMAL);
+                            break;
+                        case BIKE:
+                            printf("%s  |\n%s", CBIKE, CNORMAL);
+                            break;
+                        case BUS:
+                            printf("%s  |\n%s", CBUS, CNORMAL);
+                            break;                    
+                        default:
+                            printf("  |\n");
+                    }
                 }
+                
             }
         }
     }
-}
-
-
-int main()
-{
-    printf("no prob\n");
-    //print_path (path, 10, 4, 8);
+    free(n1_tr);
+    free(n2_tr);
+    free(is_metro);
 }
