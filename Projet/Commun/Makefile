@@ -1,9 +1,9 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra
 
 all: main
 
-main: graph.o dijkstra.o graph.o priority_queue.o graph_print.o
+main: main.c graph.o dijkstra.o graph.o priority_queue.o graph_print.o
 dijkstra.o: dijkstra.c dijkstra.h priority_queue.o
 graph.o:
 priority_queue.o:

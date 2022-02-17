@@ -18,6 +18,15 @@ int main(int argc, char** argv)
     if (d >= g->order)
         errx(1, "dest > order");
 
-    struct node* retrour = dijkstra(g, s, d);
-    print_path_terminal(retrour, HEIGHT, WIDTH);
+    struct node* retour = dijkstra(g, s, d);
+    size_t sum = 0;
+    struct node* tmp = retour;
+    while(tmp != NULL)
+    {
+        sum += tmp->weight;
+        tmp = tmp->next;
+    }
+    printf("Temps total du trajet: %lu\n\n", sum);
+
+    print_path_terminal(retour, HEIGHT, WIDTH);
 }
