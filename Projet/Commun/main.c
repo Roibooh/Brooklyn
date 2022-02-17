@@ -9,7 +9,7 @@
 int main(int argc, char** argv)
 {
     if (argc != 4)
-        errx(1, "les arguments connard");
+        errx(1, "Usage : *directory of the graph* *source* *destination*");
     struct graph* g = load_graph(argv[1]);
 
     size_t s = atol(argv[2]);
