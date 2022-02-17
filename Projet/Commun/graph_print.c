@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "graph.h"
+#include "macro.h"
 
 #define CWALK  "\x1B[31m" // red
 #define CMETRO  "\x1B[34m" // blue
@@ -70,7 +71,9 @@ void print_graph_into_file(size_t height, size_t width)
 
 void print_list(struct node* path)
 {
-    printf("0 is Walk\n1 is Bus\n2 is Metro\n3 is Bike\n4 is Tram\n\n");
+    printf("0 is Walk in %sred%s\n1 is Bus in %sgreen%s\n2 is Metro in %sblue%s\
+    \n3 is Bike in %syellow%s\n4 is Tram in %smagenta%s\n\n", CWALK, CNORMAL, CBUS, 
+    CNORMAL, CMETRO, CNORMAL, CBIKE, CNORMAL, CTRAM, CNORMAL);
     struct node* tmp = path;
     printf("%li", tmp->vertex);
     while(tmp->next!=NULL)

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "dijkstra.h"
 #include "graph.h"
+#include "graph_print.h"
+#include "macro.h"
 
 int main(int argc, char** argv)
 {
@@ -17,4 +19,5 @@ int main(int argc, char** argv)
         errx(1, "dest > order");
 
     struct node* retrour = dijkstra(g, s, d);
+    print_path_terminal(retrour, HEIGHT, WIDTH);
 }
