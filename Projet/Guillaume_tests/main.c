@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     printf("\n");
     while (n != NULL)
     {
-        printf("%lu -(%i)-> ", n->vertex, n->transport);
+        printf("-(%i)->%lu", n->transport, n->vertex);
         n = n->next;
     }
     printf("\n");
