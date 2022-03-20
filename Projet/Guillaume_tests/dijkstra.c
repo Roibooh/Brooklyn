@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <time.h>
+
 #include "graph.h"
-#include "priority_queue.h"
+#include "binary_heap.h"
 #include "macro.h"
 
 struct node* build_node(struct graph* graph, size_t source, size_t dest)
@@ -47,7 +48,7 @@ struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
 {
     size_t* distances = malloc(graph->order * sizeof(size_t));
     size_t* list_prev = malloc(graph->order * sizeof(size_t));
-    struct queue_elt* queue = NULL;
+    struct bin_heap* bh = bin_heap_init(graph->order);
     struct node* r_node = NULL; 
     //initialize lists to base value
     distances[source] = 0;
@@ -58,13 +59,13 @@ struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
             distances[v] = ULONG_MAX;
             list_prev[v] = ULONG_MAX;
         }
-        insert(&queue, v, distances[v]);
+        insert(bh, distances[v], v);
     }
 
-    for (size_t i = 0; i < graph->order; i++)
+    while (bh->heap_size != 0)
     {
         //get the closest node accessible
-        size_t min = extract_min(&queue);
+        size_t min = extract_min(bh);
         //if it is the desired destination, can return
         if (min == destination)
         {
@@ -83,13 +84,13 @@ struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
             {
                 distances[adj->vertex] = tmp;
                 list_prev[adj->vertex] = min;
-                change_prio(&queue, adj->vertex, tmp);
+                find(bh, tmp, adj->vertex);
             }
             adj = adj->next;
         }
     }
+    free_bin_heap(bh);
     free(distances);
-    free_queue(queue);
     free(list_prev);
     return r_node;
 }

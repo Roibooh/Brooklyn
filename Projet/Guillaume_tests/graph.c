@@ -181,7 +181,7 @@ struct graph* load_graph(const char* path)
     sprintf(s, "%smain.txt", path);
     struct graph* g = load_main(s);
     
-    sprintf(s, "%sbikes.txt", path);
+   /* sprintf(s, "%sbikes.txt", path);
     load_transport(g, s, BIKE);
   
     sprintf(s, "%sbus.txt", path);
@@ -192,7 +192,7 @@ struct graph* load_graph(const char* path)
 
     sprintf(s, "%stram.txt", path);
     load_transport(g, s, TRAM);
-
+*/
 
     return g;
 }
