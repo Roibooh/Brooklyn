@@ -1,9 +1,6 @@
 #ifndef DIJKSTRA_H
 #define DIJKSTRA_H
 
-#include <stddef.h>
-#include "graph.h"
-
 //distances and list_prev should be of length graph->order
 void dijkstra(struct graph* graph, int nb_dest, int index_source,\
         size_t* destinations, size_t* distances, size_t* list_prev);

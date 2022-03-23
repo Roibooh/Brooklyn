@@ -3,8 +3,9 @@ CFLAGS = -Wall -Wextra -g
 
 all: main
 
-main: main.c graph.o dijkstra.o graph.o binary_heap.o
-dijkstra.o: dijkstra.c dijkstra.h binary_heap.o
+main: main.c graph.o binary_heap.o tsp.o dijkstra.o
+tsp.o:
+dijkstra.o: 
 graph.o:
 binary_heap.o:
 

@@ -2,25 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
-#include "dijkstra.h"
-#include "graph.h"
 
-void print_tsp(size_t** dists, int len_dest, size_t* destinations)
-{
-    printf("           ");
-    for (int i = 0; i < len_dest; i++)
-        printf("%8lu ", destinations[i]);
-    printf("\n\n");
-    for (int i = 0; i < len_dest; i++)
-    {
-        printf("%8lu   ", destinations[i]);
-        for (int j = 0; j < len_dest; j++)
-        {
-            printf("%8lu ", dists[i][j]);
-        }
-        printf("\n");
-    }
-}
+#include "graph.h"
+#include "tsp.h"
 
 int main(int argc, char** argv)
 {
@@ -29,45 +13,25 @@ int main(int argc, char** argv)
     struct graph* g = load_graph(argv[1]);
     int len_dest = argc - 2;
 
-    size_t *distances = malloc(g->order * sizeof(size_t));
-    size_t *list_prev = malloc(g->order * sizeof(size_t));
     size_t destinations[len_dest];
-    
-    size_t** tsp_dists = malloc(len_dest * sizeof(size_t*));
-    for (int i = 0; i < len_dest; i ++)
-        tsp_dists[i] = malloc(len_dest * sizeof(size_t));
-    
-
-    for (int i = 0; i < len_dest; i ++)
-        destinations[i] = (size_t)atol(argv[i + 2]);
-
-
-    printf("\n");
     for (int i = 0; i < len_dest; i ++)
     {
-        dijkstra(g, len_dest, i, destinations, distances, list_prev);
-        for (int j = 0; j < len_dest; j ++)
-        {
-            tsp_dists[i][j] = distances[destinations[j]];
-        }
+        size_t d = (size_t)atol(argv[i + 2]);
+        if (d >= g->order)
+            errx(EXIT_FAILURE, "dest > g->order");
+        destinations[i] = d;
     }
+    struct node* final = tsp_main(g, destinations, len_dest);
+    final = final->next;
 
-    print_tsp(tsp_dists, len_dest, destinations);
-
-    /*
-    while (n != NULL)
+    printf("\n");
+    while(final != NULL)
     {
-        printf("-(%i)->%lu", n->transport, n->vertex);
-        n = n->next;
+        printf("--> %lu ", final->vertex);
+        final = final->next;
     }
     printf("\n");
-    */
-
-    for (int i = 0; i < len_dest; i ++)
-        free(tsp_dists[i]);
-    free(tsp_dists);
-    free(distances);
-    free(list_prev);
+    
 
     clock_t t = clock() - start;
     printf("total time: %lf\n", ((double) t) / CLOCKS_PER_SEC);
