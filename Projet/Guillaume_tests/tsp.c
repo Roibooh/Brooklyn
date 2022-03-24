@@ -23,23 +23,23 @@ void free_chained_list(struct chained_list* cl)
 }
 
 //utility function TODO remove in final build
-void print_tsp(size_t** dists, int len_dest, size_t* destinations)
+void print_tsp(size_t** dists, int len_dest, size_t* destinations, int is_no_start)
 {
     int k;
     printf("                  ");
-    for (int i = 0; i < len_dest + 1; i++)
+    for (int i = 0; i < len_dest + is_no_start; i++)
     {
         k = i;
-        if (i > 0) {k--;}
+        if (is_no_start && i > 0) {k--;}
         printf("%8lu ", destinations[k]);
     }
     printf("\n\n");
-    for (int i = 0; i < len_dest + 1; i++)
+    for (int i = 0; i < len_dest + is_no_start; i++)
     {
         k = i;
-        if (i > 0) {k--;}
+        if (is_no_start && i > 0) {k--;}
         printf("%15lu   ", destinations[k]);
-        for (int j = 0; j < len_dest + 1; j++)
+        for (int j = 0; j < len_dest + is_no_start; j++)
         {
             printf("%8lu ", dists[i][j]);
         }
@@ -100,16 +100,17 @@ struct chained_list* cost(size_t** dis, int index, int* index_list, int len)
     return r;
 }
 
-struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest)
+struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
+        int is_no_start)
 {
     //lists for dijkstra algorithm
     size_t* distances = malloc(g->order * sizeof(size_t));
     size_t* list_prev = malloc(g->order * sizeof(size_t));
     // + 1 for the dummy point
     //tsp_dists is a distance matrice conaining destinations
-    size_t** tsp_dists = malloc((len_dest + 1) * sizeof(size_t*));
-    for (int i = 0; i < len_dest + 1; i ++)
-        tsp_dists[i] = malloc((len_dest + 1 ) * sizeof(size_t));
+    size_t** tsp_dists = malloc((len_dest + is_no_start) * sizeof(size_t*));
+    for (int i = 0; i < len_dest +  is_no_start; i ++)
+        tsp_dists[i] = malloc((len_dest + is_no_start) * sizeof(size_t));
     
     //paths is a list for all the shortest path between destinations
     size_t** paths = malloc(len_dest * sizeof(size_t*));
@@ -117,20 +118,23 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest)
         paths[i] = malloc(g->order * sizeof(size_t));
     
     //here i is the index in destinations where we work
-    for (int i = 1; i < len_dest + 1; i ++)
+    for (int i = is_no_start; i < len_dest + is_no_start; i ++)
     {
-        dijkstra(g, len_dest, i - 1, destinations, distances, list_prev);
-        memcpy(paths[i - 1], list_prev, g->order * sizeof(size_t));
-        for (int j = 1; j < len_dest + 1; j ++)
+        dijkstra(g, len_dest, i - is_no_start, destinations, distances, list_prev);
+        memcpy(paths[i - is_no_start], list_prev, g->order * sizeof(size_t));
+        for (int j = is_no_start; j < len_dest + is_no_start; j ++)
         {
-            tsp_dists[i][j] = distances[destinations[j - 1]];
+            tsp_dists[i][j] = distances[destinations[j - is_no_start]];
         }
     }
     //dummy point 0 from everything will be the starting point
-    for (int i = 0; i < len_dest + 1; i ++)
+    if (is_no_start == TRUE)
     {
-        tsp_dists[0][i] = 0;
-        tsp_dists[i][0] = 0;
+        for (int i = 0; i < len_dest + 1; i ++)
+        {
+            tsp_dists[0][i] = 0;
+            tsp_dists[i][0] = 0;
+        }
     }
     //data used for the cost function
     struct chained_list* cl;
@@ -140,21 +144,27 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest)
 
     //computing the cost and the shortest path for the TSP
     //stored in the chained list cl
-    cl = cost(tsp_dists, 0, set, len_dest);
-    struct chained_list* tmp_l = cl->next;  
+    cl = cost(tsp_dists, 0, set, len_dest - 1 + is_no_start);
+    if (is_no_start == TRUE)
+        cl = cl->next;
+    struct chained_list* tmp_l = cl;
 
     struct node* final = init_node(ULONG_MAX);
     struct node* tmp_n = final;
+    struct node* tmp2_n;
     for (int i = 0; i < len_dest - 1; i ++)
     {
-        tmp_n->next = build_return(g, destinations[tmp_l->index - 1],\
-                destinations[tmp_l->next->index - 1], paths[tmp_l->index - 1]);
+        tmp2_n = build_return(g, destinations[tmp_l->index - is_no_start],\
+                destinations[tmp_l->next->index - is_no_start], paths[tmp_l->index - is_no_start]);
+        if(tmp_n != final)
+            tmp2_n = tmp2_n->next;
+        tmp_n->next = tmp2_n;
         tmp_l = tmp_l->next;
         while (tmp_n->next != NULL)
             tmp_n = tmp_n->next;
     }
 
-    print_tsp(tsp_dists, len_dest, destinations);
+    print_tsp(tsp_dists, len_dest, destinations, is_no_start);
     printf("\n%lu\n", cl->cost);
     while (cl != NULL)
     {
@@ -166,7 +176,7 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest)
     free_chained_list(cl);
     free(distances);
     free(list_prev);
-    for (int i = 0; i < len_dest + 1; i ++)
+    for (int i = 0; i < len_dest + is_no_start; i ++)
         free(tsp_dists[i]);
     free(tsp_dists);
 

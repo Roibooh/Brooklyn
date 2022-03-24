@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "graph.h"
+#include "macro.h"
 #include "tsp.h"
 
 int main(int argc, char** argv)
@@ -21,7 +22,7 @@ int main(int argc, char** argv)
             errx(EXIT_FAILURE, "dest > g->order");
         destinations[i] = d;
     }
-    struct node* final = tsp_main(g, destinations, len_dest);
+    struct node* final = tsp_main(g, destinations, len_dest, FALSE);
     final = final->next;
 
     printf("\n");

@@ -12,3 +12,4 @@ pas tout mettre dans le tas au debut, fur a mesure // pas besoin car change pas 
 21/03 : add computing distance matrice between cities
 22/03 : fix bug loading directioned transport
 23/03 : TSP first implementation karp held algo -> weight and path itself but sarting point not defined yet
+24/03 : starting point of TSP can now be set
