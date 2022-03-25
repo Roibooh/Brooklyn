@@ -50,7 +50,7 @@ void add_edge(struct graph *graph, size_t source, size_t destination, \
     new_node->transport = transport;
     graph->adjlists[source] = new_node;
     
-    if (directioned == TRUE)
+    if (directioned == FALSE)
     {
         // Add from dest to source
         new_node = init_node(source);
@@ -126,7 +126,7 @@ struct graph* load_main(const char* file)
             s = 1;
             d = 1;
             w = 1;
-            add_edge(g, source, destination, weight, WALK, TRUE);
+            add_edge(g, source, destination, weight, WALK, FALSE);
         }
     }
     fclose(fp);
@@ -181,12 +181,13 @@ struct graph* load_graph(const char* path)
     sprintf(s, "%smain.txt", path);
     struct graph* g = load_main(s);
     
+  
     sprintf(s, "%sbikes.txt", path);
     load_transport(g, s, BIKE);
-  
+
     sprintf(s, "%sbus.txt", path);
     load_transport(g, s, BUS);
-
+    
     sprintf(s, "%smetro.txt", path);
     load_transport(g, s, METRO);
 

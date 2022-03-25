@@ -171,7 +171,7 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
     printf("\n%lu\n", cl->cost);
     while (cl != NULL)
     {
-        printf("%i ", cl->index);
+        printf("%lu ", destinations[cl->index]);
         cl = cl->next;
     }
 

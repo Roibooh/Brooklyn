@@ -25,14 +25,11 @@ int main(int argc, char** argv)
     struct node* final = tsp_main(g, destinations, len_dest, FALSE);
     final = final->next;
 
-    printf("\n");
-    while(final != NULL)
+    while (final != NULL)
     {
-        printf("--> %lu ", final->vertex);
+        printf("%lu ", final->vertex);
         final = final->next;
     }
-    printf("\n");
-    
 
     clock_t t = clock() - start;
     printf("total time: %lf\n", ((double) t) / CLOCKS_PER_SEC);

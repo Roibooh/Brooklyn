@@ -1,12 +1,13 @@
 CC = gcc
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -g
 
 all: main
 
-main: main.c graph.o dijkstra.o graph.o priority_queue.o graph_print.o
-dijkstra.o: dijkstra.c dijkstra.h priority_queue.o
+main: main.c graph.o tsp.o dijkstra.o graph.o binary_heap.o graph_print.o
+tsp.o:
+dijkstra.o:
 graph.o:
-priority_queue.o:
+binary_heap.o:
 graph_print.o:
 
 .PHONY: clean
