@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 
     while (final != NULL)
     {
-        printf("%lu ", final->vertex);
+        //printf("%lu ", final->vertex);
         final = final->next;
     }
 

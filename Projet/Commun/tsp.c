@@ -2,9 +2,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
+#include <pthread.h>
 #include <string.h>
 
 #include "tsp.h"
+
+struct thread_data
+{
+    struct graph* graph;
+    int nb_dest;
+    int index_source;
+    size_t* destinations;
+    size_t* distances;
+    size_t* list_prev;
+};
 
 //used to store data compute by cost fuction
 struct chained_list
@@ -101,12 +112,17 @@ struct chained_list* cost(size_t** dis, int index, int* index_list, int len)
     return r;
 }
 
+void* worker(void* arg)
+{
+    struct thread_data* d = (struct thread_data* )arg;
+    dijkstra(d->graph, d->nb_dest, d->index_source, d->destinations,\
+            d->distances, d->list_prev);
+    return NULL;
+}
+
 struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
         int is_no_start)
 {
-    //lists for dijkstra algorithm
-    size_t* distances = malloc(g->order * sizeof(size_t));
-    size_t* list_prev = malloc(g->order * sizeof(size_t));
     // + 1 for the dummy point
     //tsp_dists is a distance matrice conaining destinations
     size_t** tsp_dists = malloc((len_dest + is_no_start) * sizeof(size_t*));
@@ -118,25 +134,49 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
     for (int i = 0; i < len_dest; i ++)
         paths[i] = malloc(g->order * sizeof(size_t));
     
+    //create the list of threads
+    pthread_t thr[len_dest];
+    struct thread_data d[len_dest];
     //here i is the index in destinations where we work
     for (int i = is_no_start; i < len_dest + is_no_start; i ++)
     {
-        dijkstra(g, len_dest, i - is_no_start, destinations,\
-                distances, list_prev);
-        memcpy(paths[i - is_no_start], list_prev, g->order * sizeof(size_t));
+        //initialise the data given to the thread
+        d[i - is_no_start].graph = g;
+        d[i - is_no_start].nb_dest = len_dest;
+        d[i - is_no_start].index_source = i - is_no_start;
+        d[i - is_no_start].destinations = destinations;
+        d[i - is_no_start].distances = malloc(g->order * sizeof(size_t));
+        d[i - is_no_start].list_prev = malloc(g->order * sizeof(size_t));
+
+        int er = pthread_create(&thr[i - is_no_start], NULL, worker,\
+                (void*)&(d[i - is_no_start]));
+        if (er != 0)
+            errx(EXIT_FAILURE, "TSP: Failure while creating thread");
+    }
+    for (int i = is_no_start; i < len_dest + is_no_start; i ++)
+    {
+        pthread_join(thr[i - is_no_start], NULL);
+        memcpy(paths[i - is_no_start], d[i - is_no_start].list_prev,\
+                g->order * sizeof(size_t));
         for (int j = is_no_start; j < len_dest + is_no_start; j ++)
         {
-            tsp_dists[i][j] = distances[destinations[j - is_no_start]];
+            tsp_dists[i][j] = \
+                d[i - is_no_start].distances[destinations[j - is_no_start]];
         }
+        free(d[i - is_no_start].distances);
+        free(d[i - is_no_start].list_prev);
     }
+
+
     //dummy point 0 from everything will be the starting point
     if (is_no_start == TRUE)
     {
         for (int i = 0; i < len_dest + 1; i ++)
         {
-            tsp_dists[0][i] = 0;
+            tsp_dists[0][i] = 99999999;//1 so it start where I want
             tsp_dists[i][0] = 0;
         }
+        tsp_dists[0][1] = 0;
     }
     //data used for the cost function
     struct chained_list* cl;
@@ -171,14 +211,12 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
     printf("\n%lu\n", cl->cost);
     while (cl != NULL)
     {
-        printf("%lu ", destinations[cl->index]);
+        printf("%lu ", destinations[cl->index - 1]);
         cl = cl->next;
     }
 
     //free all the data used
     free_chained_list(cl);
-    free(distances);
-    free(list_prev);
     for (int i = 0; i < len_dest + is_no_start; i ++)
         free(tsp_dists[i]);
     free(tsp_dists);

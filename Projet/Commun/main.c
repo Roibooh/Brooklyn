@@ -1,6 +1,5 @@
 #include <err.h>
 #include <stdlib.h>
-#include <time.h>
 #include <stdio.h>
 
 #include "graph.h"
@@ -10,7 +9,6 @@
 
 int main(int argc, char** argv)
 {
-    clock_t start = clock();
     
     struct graph* g = load_graph(argv[1]);
     int len_dest = argc - 2;
@@ -23,14 +21,11 @@ int main(int argc, char** argv)
             errx(EXIT_FAILURE, "dest > g->order");
         destinations[i] = d;
     }
-    struct node* final = tsp_main(g, destinations, len_dest, FALSE);
+    struct node* final = tsp_main(g, destinations, len_dest, TRUE);
     final = final->next;
     
     printf("\n");
     printf("\n");
     print_path_terminal(final, HEIGHT, WIDTH);
 
-    clock_t t = clock() - start;
-    printf("total time: %lf\n", ((double) t) / CLOCKS_PER_SEC);
-    
 }
