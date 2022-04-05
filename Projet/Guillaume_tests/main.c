@@ -1,16 +1,15 @@
 #include <err.h>
 #include <stdlib.h>
-#include <time.h>
 #include <stdio.h>
 
 #include "graph.h"
 #include "macro.h"
 #include "tsp.h"
+#include "graph_print.h"
 
 int main(int argc, char** argv)
 {
-    clock_t start = clock();
-    
+    void* to_free;
     struct graph* g = load_graph(argv[1]);
     int len_dest = argc - 2;
 
@@ -22,16 +21,14 @@ int main(int argc, char** argv)
             errx(EXIT_FAILURE, "dest > g->order");
         destinations[i] = d;
     }
-    struct node* final = tsp_main(g, destinations, len_dest, FALSE);
+    struct node* final = tsp_main(g, destinations, len_dest, TRUE);
+    to_free = final;
     final = final->next;
-
-    while (final != NULL)
-    {
-        //printf("%lu ", final->vertex);
-        final = final->next;
-    }
-
-    clock_t t = clock() - start;
-    printf("total time: %lf\n", ((double) t) / CLOCKS_PER_SEC);
     
+    printf("\n");
+    printf("\n");
+    print_path_terminal(final, HEIGHT, WIDTH);
+    free_node(final);
+    free(to_free);
+    free_graph(g);
 }

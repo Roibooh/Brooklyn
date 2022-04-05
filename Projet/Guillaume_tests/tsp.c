@@ -26,10 +26,12 @@ struct chained_list
 };
 void free_chained_list(struct chained_list* cl)
 {
-    if(cl != NULL)
+    struct chained_list* tmp;
+    while (cl != NULL)
     {
-        free_chained_list(cl->next);
-        free(cl);
+        tmp = cl;
+        cl = cl->next;
+        free(tmp);
     }
 }
 
@@ -80,10 +82,10 @@ int* remove_index(int* list, int index_remove, int len)
 
 //apply the Held-Karp algorithm to resolve the TSP
 //the shortest path is stored in the return chained list
-struct chained_list* cost(size_t** dis, int index, int* index_list, int len)
+void cost(size_t** dis, int index, int* index_list, int len,\
+        struct chained_list* r)
 {
     //create return element
-    struct chained_list* r = malloc(sizeof(struct chained_list));
     r->cost = ULONG_MAX;
     r->next = NULL;
     r->index = index;
@@ -92,24 +94,31 @@ struct chained_list* cost(size_t** dis, int index, int* index_list, int len)
     if (len == 0)
     {
         r->cost = dis[index][0];
-        return r;
+        return;
     }
-
     struct chained_list* temp;
     size_t temp_min;
     for (int i = 0; i < len; i ++)
     {
+        temp = malloc(sizeof(struct chained_list));
         int* cp_list = remove_index(index_list, i, len);
-        temp = cost(dis, index_list[i], cp_list, len - 1);
+
+        cost(dis, index_list[i], cp_list, len - 1, temp);
+        
         temp_min = temp->cost + dis[index][index_list[i]];
+        
         if (temp_min < r->cost)
         {
+            free_chained_list(r->next);
             r->cost = temp_min; 
             r->next = temp;
         }
+        else
+        {
+            free_chained_list(temp);
+        }
+        free(cp_list);
     }
-    free(index_list);
-    return r;
 }
 
 void* worker(void* arg)
@@ -123,6 +132,7 @@ void* worker(void* arg)
 struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
         int is_no_start)
 {
+    void* to_free;
     // + 1 for the dummy point
     //tsp_dists is a distance matrice conaining destinations
     size_t** tsp_dists = malloc((len_dest + is_no_start) * sizeof(size_t*));
@@ -179,16 +189,20 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
         tsp_dists[0][1] = 0;
     }
     //data used for the cost function
-    struct chained_list* cl;
-    int* set = malloc(len_dest * sizeof(int));
+    struct chained_list* cl = malloc(sizeof(struct chained_list));
+    int set[len_dest];
     for (int i = 0; i < len_dest; i ++)
         set[i] = i + 1;
 
     //computing the cost and the shortest path for the TSP
     //stored in the chained list cl
-    cl = cost(tsp_dists, 0, set, len_dest - 1 + is_no_start);
+    cost(tsp_dists, 0, set, len_dest - 1 + is_no_start, cl);
     if (is_no_start == TRUE)
+    {
+        to_free = cl;
         cl = cl->next;
+        free(to_free);
+    }
     struct chained_list* tmp_l = cl;
 
     struct node* final = init_node(ULONG_MAX);
@@ -200,7 +214,11 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
                 destinations[tmp_l->next->index - is_no_start],\
                 paths[tmp_l->index - is_no_start]);
         if(tmp_n != final)
+        {
+            to_free = tmp2_n;
             tmp2_n = tmp2_n->next;
+            free(to_free);
+        }
         tmp_n->next = tmp2_n;
         tmp_l = tmp_l->next;
         while (tmp_n->next != NULL)
@@ -208,18 +226,22 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
     }
 
     print_tsp(tsp_dists, len_dest, destinations, is_no_start);
-    printf("\n%lu\n", cl->cost);
-    while (cl != NULL)
+    
+    tmp_l = cl;
+    printf("\n%lu\n", tmp_l->cost);
+    while (tmp_l != NULL)
     {
-        printf("%lu ", destinations[cl->index - 1]);
-        cl = cl->next;
+        printf("%lu ", destinations[tmp_l->index - 1]);
+        tmp_l = tmp_l->next;
     }
 
     //free all the data used
     free_chained_list(cl);
     for (int i = 0; i < len_dest + is_no_start; i ++)
         free(tsp_dists[i]);
+    for (int i = 0; i < len_dest; i ++)
+        free(paths[i]);
+    free(paths);
     free(tsp_dists);
-
     return final;
 }

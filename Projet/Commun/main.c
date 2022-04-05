@@ -9,7 +9,7 @@
 
 int main(int argc, char** argv)
 {
-    
+    void* to_free;
     struct graph* g = load_graph(argv[1]);
     int len_dest = argc - 2;
 
@@ -22,10 +22,13 @@ int main(int argc, char** argv)
         destinations[i] = d;
     }
     struct node* final = tsp_main(g, destinations, len_dest, TRUE);
+    to_free = final;
     final = final->next;
     
     printf("\n");
     printf("\n");
     print_path_terminal(final, HEIGHT, WIDTH);
-
+    free_node(final);
+    free(to_free);
+    free_graph(g);
 }

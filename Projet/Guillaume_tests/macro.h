@@ -11,4 +11,7 @@
 #define TRAM 3
 #define BIKE 4
 
+#define HEIGHT 15
+#define WIDTH 20
+
 #endif

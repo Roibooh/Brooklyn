@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -pedantic -std=c99 -g
 LDFLAGS = -pthread
 
 all: main

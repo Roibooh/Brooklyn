@@ -27,9 +27,14 @@ struct graph* init_graph(size_t order)
 //free node
 void free_node(struct node* n)
 {
-    if (n->next)
-        free_node(n->next);
-    free(n);
+    struct node* tmp;
+
+    while (n != NULL)
+    {
+        tmp = n;
+        n = n->next;
+        free(tmp);
+    }
 }
 //free graph
 void free_graph(struct graph* g)
@@ -174,6 +179,7 @@ void load_transport(struct graph* g, const char* file, int transport)
                     transport == BUS);
         }
     }
+    fclose(fp);
 }
 struct graph* load_graph(const char* path)
 {
