@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <err.h>
 
 #include "graph.h"
 
@@ -53,6 +54,144 @@ void print_graph_into_file(size_t height, size_t width)
         {
             for(y = 0; y < width; ++y)
             {
+                if (y != width-1)
+                    printf("  |     ");
+                else
+                    printf("  |\n");
+            }
+        }
+    }
+}
+
+
+
+//------------------------------------------------------------------------------
+
+int is_part(size_t* arr, int length, size_t node)
+{
+    for(int i = 0; i < length; i++)
+    {
+        if (*(arr+i) == node)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void print_generated_bike_graph(size_t height, size_t width, int q_transport)
+{
+    FILE *read_bike = fopen("gen_bike.txt", "r");
+    if(read_bike == NULL)
+        err(1, "Unable to open file!");
+    size_t *bikes = malloc(sizeof(size_t) * q_transport);
+    char chunk[8];
+    size_t chunk_i;
+    int counter = 0;
+    while(fgets(chunk, sizeof(chunk), read_bike) != NULL && counter<q_transport)
+    {
+        chunk_i = atoi(chunk);
+        *(bikes + counter) = chunk_i;
+        counter++;
+    }
+
+    size_t y, x;
+    char n[15];
+    char node[30];
+    for(x = 0; x < height; ++x)
+    {
+        for(y = 0; y < width; ++y){
+            int is_bike = is_part(bikes, q_transport, x*width+y);
+            if (x*width + y < 10)
+                strcpy(node, "( ");
+            else
+                strcpy(node, "(");
+            if (is_bike)
+                sprintf(n, "%s%lu%s", CBIKE, x*width + y, CNORMAL);
+            else
+                sprintf(n, "%lu", x*width + y);
+            strcat(node, n);
+            if (x*width + y >= 100)
+                strcat(node, ")");
+            else
+                strcat(node, " )");
+            if (y != width-1)
+                printf("%s---", node);
+            else
+                printf("%s\n", node);
+        }
+        if (x != height-1){
+            for(y = 0; y < width; ++y){
+                if (y != width-1)
+                    printf("  |     ");
+                else
+                    printf("  |\n");
+            }
+        }
+    }
+}
+
+
+
+int is_part_2(int* arr, size_t node)
+{
+    int i = 0;
+    while(*(arr+i) != -1)
+    {
+        if (*(arr+i) == (int)node)
+            return 1;
+        i++;
+    }
+    return 0;
+}
+
+
+
+void print_generated_motorized_graph(size_t height, size_t width, int* metros, int type)
+{
+    size_t y, x;
+    char n[15];
+    char node[30];
+    char* color;
+    switch (type)
+    {
+        case METRO:
+            color = CMETRO;
+            break;
+        case TRAM:
+            color = CTRAM;
+            break;
+        case BUS:
+            color = CBUS;
+            break;
+        default:
+            color = CNORMAL;
+            break;
+    }
+    for(x = 0; x < height; ++x)
+    {
+        for(y = 0; y < width; ++y){
+            int is_motor = is_part_2(metros, x*width+y);
+            if (x*width + y < 10)
+                strcpy(node, "( ");
+            else
+                strcpy(node, "(");
+            if (is_motor)
+                sprintf(n, "%s%lu%s", color, x*width + y, CNORMAL);
+            else
+                sprintf(n, "%lu", x*width + y);
+            strcat(node, n);
+            if (x*width + y >= 100)
+                strcat(node, ")");
+            else
+                strcat(node, " )");
+            if (y != width-1)
+                printf("%s---", node);
+            else
+                printf("%s\n", node);
+        }
+        if (x != height-1){
+            for(y = 0; y < width; ++y){
                 if (y != width-1)
                     printf("  |     ");
                 else
@@ -239,6 +378,7 @@ struct node* complete_path(struct node *path, size_t graph_width)
 
 void find_neighbor_list(struct node *path, size_t node, int grid_width, int *n1_tr, int *n2_tr, int* metro)
 {
+    /////////////////////////////////////////////////pas oublier de tester plusieurs neouds car chemin peut revenir 2 fois sur un chemin
     struct node *pre = NULL;
     struct node *tmp = path;
     while (tmp != NULL && tmp->vertex != node)

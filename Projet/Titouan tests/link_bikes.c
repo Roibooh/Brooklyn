@@ -56,7 +56,7 @@ void link_bikes(char* data, char* res, int height, int width, int bike_number, i
             fputs(" ", write_f);
             sprintf(w, "%i", weight);
             fputs(w, write_f);
-            if (i != bike_number-1 && j != bike_number -1)
+            if ((i != bike_number-2) || (j != bike_number-1))
                 fputs("\n", write_f);
         }
     }
