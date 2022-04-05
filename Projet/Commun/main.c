@@ -1,32 +1,34 @@
 #include <err.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "dijkstra.h"
+
 #include "graph.h"
-#include "graph_print.h"
 #include "macro.h"
+#include "tsp.h"
+#include "graph_print.h"
 
 int main(int argc, char** argv)
 {
-    if (argc != 4)
-        errx(1, "Usage : *directory of the graph* *source* *destination*");
+    void* to_free;
     struct graph* g = load_graph(argv[1]);
+    int len_dest = argc - 2;
 
-    size_t s = atol(argv[2]);
-    size_t d = atol(argv[3]);
-
-    if (d >= g->order)
-        errx(1, "dest > order");
-
-    struct node* retour = dijkstra(g, s, d);
-    size_t sum = 0;
-    struct node* tmp = retour;
-    while(tmp != NULL)
+    size_t destinations[len_dest];
+    for (int i = 0; i < len_dest; i ++)
     {
-        sum += tmp->weight;
-        tmp = tmp->next;
+        size_t d = (size_t)atol(argv[i + 2]);
+        if (d >= g->order)
+            errx(EXIT_FAILURE, "dest > g->order");
+        destinations[i] = d;
     }
-    printf("Temps total du trajet: %lu\n\n", sum);
-
-    print_path_terminal(retour, HEIGHT, WIDTH);
+    struct node* final = tsp_main(g, destinations, len_dest, TRUE);
+    to_free = final;
+    final = final->next;
+    
+    printf("\n");
+    printf("\n");
+    print_path_terminal(final, HEIGHT, WIDTH);
+    free_node(final);
+    free(to_free);
+    free_graph(g);
 }

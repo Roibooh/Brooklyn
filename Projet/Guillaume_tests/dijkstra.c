@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <time.h>
+
 #include "graph.h"
-#include "priority_queue.h"
+#include "binary_heap.h"
 #include "macro.h"
 
 struct node* build_node(struct graph* graph, size_t source, size_t dest)
@@ -41,35 +42,41 @@ struct node* build_return(struct graph* graph, size_t source, \
     return tmp;
 }
 /* 
-**  source != destination
+**  nb_dest >= 2
 */
-struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
+void dijkstra(struct graph* graph, int nb_dest, int index_source,\
+        size_t* destination, size_t* distances, size_t* list_prev)
 {
-    size_t* distances = malloc(graph->order * sizeof(size_t));
-    size_t* list_prev = malloc(graph->order * sizeof(size_t));
-    struct queue_elt* queue = NULL;
-    struct node* r_node = NULL; 
+    int len_dest = nb_dest;
+    struct bin_heap* bh = bin_heap_init(graph->order);
+
     //initialize lists to base value
-    distances[source] = 0;
+    distances[destination[index_source]] = 0;
     for (size_t v = 0; v < graph->order; v++)
     {
-        if (v != source)
+        if (v != destination[index_source])
         {
             distances[v] = ULONG_MAX;
             list_prev[v] = ULONG_MAX;
         }
-        insert(&queue, v, distances[v]);
+        insert(bh, distances[v], v);
     }
 
-    for (size_t i = 0; i < graph->order; i++)
+    while (bh->heap_size != 0)
     {
+        int i;
         //get the closest node accessible
-        size_t min = extract_min(&queue);
-        //if it is the desired destination, can return
-        if (min == destination)
+        size_t min = extract_min(bh);
+        //if it is one the desired destination
+        for (i = 0; i < len_dest; i++)
+            if (min == destination[i])
+                break;
+        if (i != len_dest)
         {
-            r_node = build_return(graph, source, destination, list_prev);
-            break;
+            nb_dest -= 1;
+            //if all dest has been seen break
+            if (nb_dest == 0)
+                break;
         }
         //get the nodes adjacent to vertex_min_dist
         struct node* adj = graph->adjlists[min];
@@ -83,13 +90,10 @@ struct node* dijkstra(struct graph* graph, size_t source, size_t destination)
             {
                 distances[adj->vertex] = tmp;
                 list_prev[adj->vertex] = min;
-                change_prio(&queue, adj->vertex, tmp);
+                find(bh, tmp, adj->vertex);
             }
             adj = adj->next;
         }
     }
-    free(distances);
-    free_queue(queue);
-    free(list_prev);
-    return r_node;
+    free_bin_heap(bh);
 }
