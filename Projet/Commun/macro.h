@@ -1,8 +1,13 @@
 #ifndef MACRO_H
 #define MACRO_H
 
+#ifndef TRUE
 #define TRUE 1
+#endif
+
+#ifndef FALSE
 #define FALSE 0
+#endif
 
 #define UNDEFINED -1
 #define WALK 0

@@ -16,3 +16,5 @@ pas tout mettre dans le tas au debut, fur a mesure // pas besoin car change pas 
 25/03 : mise en commun avec le reste tout ok sauf cas rare
 02->03/04 : mise en place thread opti pas ouf
 05/04 : correction point de depart pour de vrais
+05/04 : VALGRIND -> leak free, marche bien :))
+
