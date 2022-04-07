@@ -30,7 +30,8 @@ int main(int argc, char** argv)
     
     printf("\n");
     printf("\n");
-    print_path_terminal(final, HEIGHT, WIDTH);
+    if (g->order == 300)
+        print_path_terminal(final, HEIGHT, WIDTH);
     
     free_node(final);
     free(to_free);
