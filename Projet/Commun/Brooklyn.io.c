@@ -23,27 +23,28 @@ void calculate(__attribute__((unused)) GtkWidget *widget,
     
     
     
-    //void* to_free;
-    //struct graph* g = load_graph("../graphs/graph300/");
-    //int len_dest = 2;
+    
+    struct graph* g = load_graph("../graphs/graph300/");
+    int len_dest = 2;
 
-    //size_t destinations[len_dest];
-    //destinations[0] = num1;
-    //destinations[1] = num2;
-    //struct node* final = tsp_main(g, destinations, len_dest, 1);
+    size_t destinations[len_dest];
+    destinations[0] = num1;
+    destinations[1] = num2;
+    struct node* final = tsp_main(g, destinations, len_dest, 1);
     
-    //char buffer[100];
-    //struct node* tmp = final;
-    //while (tmp != NULL)
-    //{
-    	//sprintf(buffer, "%lu", tmp->vertex);
-    	//gtk_label_set_text (GTK_LABEL(result), (const char*) buffer);
-    //}
+    char buffer[1000];
+    struct node* tmp = final;
+    while (tmp->next != NULL)
+    {
+    	sprintf(buffer, "%lu->", tmp->vertex);
+    	tmp = tmp->next;
+    }
+    gtk_label_set_text (GTK_LABEL(result), (const gchar*) buffer);
     
-    char buffer[32];
-    snprintf(buffer, sizeof(buffer), "%ld", num1 + num2);
+    //char buffer[32];
+    //snprintf(buffer, sizeof(buffer), "%ld", num1 + num2);
     
-    gtk_label_set_text(GTK_LABEL(result), buffer);
+    //gtk_label_set_text(GTK_LABEL(result), buffer);
     	
     	
     
