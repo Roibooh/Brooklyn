@@ -1,4 +1,4 @@
-//gcc  -Wall -Wextra -o GUI GUI.c $(pkg-config gtk+-3.0 --cflags --libs) -rdynamic
+//gcc  -Wall -Wextra -o Brooklyn.io Brooklyn.io.c $(pkg-config gtk+-3.0 --cflags --libs) -rdynamic
 #include <gtk/gtk.h>
 
 static GtkWidget *depart;
@@ -48,7 +48,7 @@ int main ( int argc, char **argv) {
  
     builder = gtk_builder_new();
  
-    if( gtk_builder_add_from_file (builder,"GUI.glade" , NULL) == 0)
+    if( gtk_builder_add_from_file (builder,"Brooklyn.io.glade" , NULL) == 0)
     {
         printf("gtk_builder_add_from_file FAILED\n");
         return(0);
