@@ -1,5 +1,6 @@
 # vim trash
 *.swp
+*.o
 
 #big graph
 graphs/graph1M/main.txt
