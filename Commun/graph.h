@@ -22,16 +22,25 @@ struct graph
     //dynamic list of node in the graph
     struct node** adjlists;
 };
-//initialiser for struct
+
+/*  allocate and create a node for a graph
+**  vertex will be the vertex of the node*/
 struct node* init_node(size_t vertex);
+
+/*  allocate and create a graph 
+**  order is the number of node in the graph*/
 struct graph* init_graph(size_t order);
-//destroyer
+
+//free the memory allocate for a node and all linked one
 void free_node(struct node* n);
+
+//free a graph and call free node for all the node in the graph
 void free_graph(struct graph* g);
 
-//load a graph stored in file
+/*  main fonction to load a graph
+**  call load_main and load_transport for each file*/
 struct graph* load_graph(const char* file);
-//print all edge in a graph
+
 void print_graph(struct graph* graph);
 
 #endif
