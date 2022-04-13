@@ -4,9 +4,12 @@
 #include "macro.h"
 #include "graph.h"
 
-//init a node numbered "vertex"
 struct node* init_node(size_t vertex)
 {
+    /*
+    **  allocate and create a node for a graph
+    **  vertex will be the vertex of the node
+    */
     struct node* new_node = malloc(sizeof(struct node));
     new_node->vertex = vertex;
     new_node->next = NULL;
@@ -15,18 +18,23 @@ struct node* init_node(size_t vertex)
 
     return new_node;
 }
-//init graph
 struct graph* init_graph(size_t order)
 {
+    /*
+    **  allocate and create a graph 
+    **  order is the number of node in the graph
+    */
     struct graph* graph = malloc(sizeof(struct graph));
     graph->order = order;
     graph->adjlists = calloc(order, sizeof(struct node*));
     
     return graph;
 }
-//free node
 void free_node(struct node* n)
 {
+    /*
+    **  free the memory allocate for a node and all linked one
+    */
     struct node* tmp;
 
     while (n != NULL)
@@ -36,9 +44,11 @@ void free_node(struct node* n)
         free(tmp);
     }
 }
-//free graph
 void free_graph(struct graph* g)
 {
+    /*
+    ** free a graph and call free node for all the node in the graph
+    */
     for (size_t i = 0; i < g->order; i++)
         free_node(g->adjlists[i]);
     free(g->adjlists);
@@ -48,6 +58,13 @@ void free_graph(struct graph* g)
 void add_edge(struct graph *graph, size_t source, size_t destination, \
         size_t weight, int transport, int directioned)
 {
+    /*
+    ** add and edge in graph
+    ** the edge will go frome source to destination
+    ** weight is the cost of the edge
+    ** transport indeicate the way of transport used
+    ** directionned is a boolean true if it is a one way edge
+    */
     // Add from source to dest
     struct node* new_node = init_node(destination);
     new_node->next = graph->adjlists[source];
@@ -81,9 +98,20 @@ void print_graph(struct graph* graph)
         printf("\n");
     }
 }
-//load the main graph from a file
 struct graph* load_main(const char* file)
 {
+    /*
+    **  load the main file of the graph
+    **  it contains the order of the graph and
+    **  it also contains the edges used when walking
+    **
+    **  a line of the file store the data as such
+    **  s d w
+    **  s is the source
+    **  d the destination
+    **  w the weight
+    **  each line is an edge
+    */
     FILE* fp = fopen(file, "r");
     if (fp == NULL)
         err(1, "load_main: error in fopen");
@@ -103,23 +131,23 @@ struct graph* load_main(const char* file)
         {
             //source
             s = 0;
-            source = atoi(word); //cast to number
+            source = atol(word); //cast to number
         }
         else if (d)
         {
             d = 0;
-            destination = atoi(word);
+            destination = atol(word);
             //destination
         }
         else if (w)
         {
             w = 0;
-            weight = atoi(word);
+            weight = atol(word);
         }
         else
         {
             //first one
-            g = init_graph(atoi(word)); //cast to number
+            g = init_graph(atol(word)); //cast to number
             s = 1;
             d = 1;
             w = 1;
@@ -139,6 +167,11 @@ struct graph* load_main(const char* file)
 }
 void load_transport(struct graph* g, const char* file, int transport)
 {
+    /*
+    **  Same as load_main but for other transports
+    **  they are stored in different files
+    **  the data are stored in the way
+    */
     FILE* fp = fopen(file, "r");
     if (fp == NULL)
         err(1, "load_transport: error in fopen");
@@ -156,17 +189,17 @@ void load_transport(struct graph* g, const char* file, int transport)
         if (s)
         {
             s = 0;
-            source = atoi(word);
+            source = atol(word);
         }
         else if (d)
         {
             d = 0;
-            destination = atoi(word);
+            destination = atol(word);
         }
         else if (w)
         {
             w = 0;
-            weight = atoi(word);
+            weight = atol(word);
         }
         if (d == 0 && s == 0 && w == 0)
         {
@@ -183,11 +216,14 @@ void load_transport(struct graph* g, const char* file, int transport)
 }
 struct graph* load_graph(const char* path)
 {
+    /*
+    **  main fonction to load a graph
+    **  call load_main and load_transport for each file
+    */
     char s[100];
     sprintf(s, "%smain.txt", path);
     struct graph* g = load_main(s);
     
-  
     sprintf(s, "%sbikes.txt", path);
     load_transport(g, s, BIKE);
 
@@ -199,7 +235,6 @@ struct graph* load_graph(const char* path)
 
     sprintf(s, "%stram.txt", path);
     load_transport(g, s, TRAM);
-
 
     return g;
 }
