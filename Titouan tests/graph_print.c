@@ -133,10 +133,10 @@ void print_generated_bike_graph(size_t height, size_t width, int q_transport)
 
 
 
-int is_part_2(int* arr, size_t node)
+int is_part_2(int* arr, size_t node, size_t len)
 {
-    int i = 0;
-    while(*(arr+i) != -1)
+    size_t i = 0;
+    while((*(arr+i) != -1) & (i < len))
     {
         if (*(arr+i) == (int)node)
             return 1;
@@ -153,6 +153,7 @@ void print_generated_motorized_graph(size_t height, size_t width, int* metros, i
     char n[15];
     char node[30];
     char* color;
+    size_t noeud;
     switch (type)
     {
         case METRO:
@@ -171,17 +172,18 @@ void print_generated_motorized_graph(size_t height, size_t width, int* metros, i
     for(x = 0; x < height; ++x)
     {
         for(y = 0; y < width; ++y){
-            int is_motor = is_part_2(metros, x*width+y);
-            if (x*width + y < 10)
+            noeud = x*width+y;
+            int is_motor = is_part_2(metros, noeud, height*width);
+            if (noeud%1000 < 10)
                 strcpy(node, "( ");
             else
                 strcpy(node, "(");
             if (is_motor)
-                sprintf(n, "%s%lu%s", color, x*width + y, CNORMAL);
+                sprintf(n, "%s%lu%s", color, noeud%1000, CNORMAL);
             else
-                sprintf(n, "%lu", x*width + y);
+                sprintf(n, "%lu", noeud%1000);
             strcat(node, n);
-            if (x*width + y >= 100)
+            if (noeud%1000 >= 100)
                 strcat(node, ")");
             else
                 strcat(node, " )");

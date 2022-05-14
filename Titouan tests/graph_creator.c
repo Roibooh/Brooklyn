@@ -5,7 +5,7 @@
 
 void create_walk_graph(size_t height, size_t width, int walking)
 {
-    FILE *file = fopen("main.txt", "w");
+    FILE *file = fopen("graph/main.txt", "w");
     if(file == NULL)
     {
         err(1, "Could not find or open file!");

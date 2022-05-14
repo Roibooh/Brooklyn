@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include "graph.h"
-#include "dijkstra.h"
+//#include "dijkstra.h"
 
 void print_graph_into_file(size_t height, size_t width);
 int is_part(size_t* arr, size_t length, size_t node);
