@@ -32,12 +32,13 @@ void calculate(__attribute__((unused)) GtkWidget *widget,
     destinations[0] = num1;
     destinations[1] = num2;
     struct node* final = tsp_main(g, destinations, len_dest, 1);
+    struct node* path = complete_path(final, 20);
     
     char* buffer = malloc(1000*sizeof(char*));
-    buffer[0] = '\0';
     char* tmpc = malloc(100*sizeof(char*));
-    struct node* tmp = final;
+    struct node* tmp = path;
     tmp = tmp->next;
+    sprintf(buffer, "%lu->", num1);
     while (tmp->next != NULL)
     {
     	sprintf(tmpc, "%lu->", tmp->vertex);
