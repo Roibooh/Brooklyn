@@ -15,6 +15,7 @@ static GtkWidget *lanceur;
 static GtkWidget *result;
 
 
+
 void calculate(__attribute__((unused)) GtkWidget *widget, 
                __attribute__((unused)) gpointer   data)
 {
@@ -32,13 +33,37 @@ void calculate(__attribute__((unused)) GtkWidget *widget,
     destinations[1] = num2;
     struct node* final = tsp_main(g, destinations, len_dest, 1);
     
-    char buffer[1000];
+    char* buffer = malloc(1000*sizeof(char*));
+    buffer[0] = '\0';
+    char* tmpc = malloc(100*sizeof(char*));
     struct node* tmp = final;
+    tmp = tmp->next;
     while (tmp->next != NULL)
     {
-    	sprintf(buffer, "%lu->", tmp->vertex);
+    	sprintf(tmpc, "%lu->", tmp->vertex);
+    	size_t lenght = 0;
+    	while (buffer[lenght] != '\0')
+    	{
+    		++lenght;
+    	}
+    	for (size_t j = 0; tmpc[j] != '\0' ; ++j, ++lenght)
+    	{
+    		buffer[lenght] = tmpc[j];
+    	}
+    	buffer[lenght] = '\0';
     	tmp = tmp->next;
     }
+    sprintf(tmpc, "%lu", tmp->vertex);
+    size_t lenght = 0;
+    while (buffer[lenght] != '\0')
+    {
+    	++lenght;
+    }
+    for (size_t j = 0; tmpc[j] != '\0' ; ++j, ++lenght)
+    {
+    	buffer[lenght] = tmpc[j];
+    }
+    buffer[lenght] = '\0';
     gtk_label_set_text (GTK_LABEL(result), (const gchar*) buffer);
     
     //char buffer[32];
