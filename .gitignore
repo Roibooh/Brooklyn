@@ -3,4 +3,7 @@
 *.o
 
 #big graph
-graphs/graph1M/main.txt
+*graph1M/main.txt
+
+#test file
+*test.txt
