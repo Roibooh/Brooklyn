@@ -28,8 +28,8 @@ int main(int argc, char** argv)
     to_free = final;
     final = final->next;
     
- //   if (g->order == 300)
-   //     print_path_terminal(final, HEIGHT, WIDTH);
+    if (g->order == 300)
+        print_path_terminal(final, HEIGHT, WIDTH);
     
     free_node(final);
     free(to_free);

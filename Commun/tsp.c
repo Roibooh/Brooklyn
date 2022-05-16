@@ -229,7 +229,14 @@ struct chained_list* ant_colony(int len_dest, size_t** tsp_dists, size_t start,\
                 matrix[i][j] = tsp_dists[i + 1][j + 1];
         }
 
-        return main_ant(len_dest, matrix, start);
+        struct chained_list* r = main_ant(len_dest, matrix, start);
+        
+        for (int i = 0; i < len_dest; i++)
+            free(matrix[i]);
+        free(matrix);
+
+        return r;
+
     }
     else
     {
@@ -279,10 +286,20 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
         build_full_path(g, destinations, paths, FALSE, final, cl_tsp,\
                 len_dest);
     }
-    
+   
+    printf("Total time for the path: %lu\n", cl_tsp->cost);
     to_free = cl_tsp;
-
-    printf("%lu\n", cl_tsp->cost);
+    printf("Path: \n");
+    while (cl_tsp != NULL)
+    {
+        if (len_dest <= 9)
+            printf("-> %lu ", destinations[cl_tsp->index - is_no_start]);
+        else
+            printf("-> %lu ", destinations[cl_tsp->index]);
+        cl_tsp = cl_tsp->next;
+    }
+    printf("\n");
+    printf("\n");
 
     //free all the data used
     for (int i = 0; i < len_dest + is_no_start; i ++)

@@ -8,8 +8,8 @@
 #include "graph.h"
 #include "macro.h"
 
-const float aalpha = 1.0;
-const float bbeta = 2.0;
+const float aalpha = 3.0;
+const float bbeta = 5.0;
 const float evaporate_rate = 0.999;
 
 const float constant_pheromone = 0.01;
@@ -138,6 +138,7 @@ size_t make_ant_path(size_t index, struct node* path, size_t** matrix,\
         free_possible_list(possible->next);
         possible->next = NULL;
     }
+    free_possible_list(possible);
     return len;
 }
 
@@ -206,7 +207,9 @@ void run_colony(size_t g_size, size_t** matrix, float** pheromone,\
         for (j = 0; j < g_size; j++)
             pheromone[i][j] = 2 * new_pheromone[i][j] / sum;
     }
-    
+    for (size_t i = 0; i < g_size; i++)
+        free(new_pheromone[i]);
+    free(new_pheromone);
 }
 
 size_t get_max(float* line, size_t g_size)
