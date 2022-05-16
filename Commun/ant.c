@@ -8,9 +8,10 @@
 #include "graph.h"
 #include "macro.h"
 
+//Constants used in the algorithm
 const float aalpha = 3.0;
 const float bbeta = 5.0;
-const float evaporate_rate = 0.999;
+const float evaporate_rate = 0.99;
 
 const float constant_pheromone = 0.01;
 const float base_ratio = 0.05;
@@ -18,12 +19,12 @@ const float base_ratio = 0.05;
 const size_t c_size = 20;
 const int iterations = 100;
 
+//Linked list struct used to create list of all possible next node
 struct possible_list
 {
     size_t index;
     struct possible_list* next;
 };
-
 void free_possible_list(struct possible_list* pl)
 {
     struct possible_list* tmp;
@@ -34,7 +35,7 @@ void free_possible_list(struct possible_list* pl)
         free(tmp);
     }
 }
-
+//free the chained_list structure defined in the header
 void free_chained_list(struct chained_list* cl)
 {
     struct chained_list* tmp;
@@ -57,6 +58,10 @@ float make_rand(float max)
     return (float)r;
 }
 
+/*
+** Create a new two dimension list withe the same value as phero
+** return it
+*/
 float** duplicate_phero(float** phero, size_t s)
 {
     float** new = malloc(s * sizeof(float*));
@@ -69,11 +74,16 @@ float** duplicate_phero(float** phero, size_t s)
     return new;
 }
 
+/*
+** Compute the probability to go from node i to j
+** aalpha and bbeta are defined as constant
+*/
 float get_proba(size_t i, size_t j, float** pheromone, size_t** matrix)
 {
     return pow(pheromone[i][j], aalpha) * pow(matrix[i][j], -bbeta);
 }
 
+//return 1 if i is in path
 int contain(struct node* path, size_t i)
 {
     while (path != NULL)
@@ -86,6 +96,9 @@ int contain(struct node* path, size_t i)
 }
 
 
+/*
+** Create a path for an ant in path
+*/
 size_t make_ant_path(size_t index, struct node* path, size_t** matrix,\
         float** pheromone, size_t g_size)
 {
@@ -116,6 +129,7 @@ size_t make_ant_path(size_t index, struct node* path, size_t** matrix,\
         float rand = make_rand(sum_proba);
         float tmp_sum_proba = 0.0;
 
+        //once all possible node are knowed can randomly choose the next
         tmp_possible = possible->next;
         while (tmp_possible != NULL)
         {
@@ -142,6 +156,7 @@ size_t make_ant_path(size_t index, struct node* path, size_t** matrix,\
     return len;
 }
 
+//run the entier colony of ant one time and change pheromone acordingly
 void run_colony(size_t g_size, size_t** matrix, float** pheromone,\
         size_t start)
 {
@@ -178,23 +193,18 @@ void run_colony(size_t g_size, size_t** matrix, float** pheromone,\
         //simulate phero trace
         while (path->next != NULL)
         {
-            //new_pheromone[path->vertex][pre] += pheromone_to_add;
             new_pheromone[pre][path->vertex] += pheromone_to_add;
 
             pre = path->vertex;
             path = path->next;
         }
-        //new_pheromone[path->vertex][pre] += pheromone_to_add;
         new_pheromone[pre][path->vertex] += pheromone_to_add;
-
-        //new_pheromone[path->vertex][first] += pheromone_to_add;
-        //new_pheromone[first][path->vertex] += pheromone_to_add;
 
         free_node(path_header);
     }
 
     
-    //update weight of phero after
+    //update weight of phero after and normalize it
     for (i = 0; i < g_size; i++)
     {
         float sum = 0.0;
@@ -212,6 +222,7 @@ void run_colony(size_t g_size, size_t** matrix, float** pheromone,\
     free(new_pheromone);
 }
 
+//get the maximum in the list line
 size_t get_max(float* line, size_t g_size)
 {
     float max = line[0];
@@ -228,6 +239,7 @@ size_t get_max(float* line, size_t g_size)
     return maxi;
 }
 
+//main function for the ant system
 struct chained_list* main_ant(size_t g_size, size_t** matrix, size_t start)
 {
     float** pheromone = calloc(g_size, sizeof(float*));
@@ -268,27 +280,5 @@ struct chained_list* main_ant(size_t g_size, size_t** matrix, size_t start)
     
     r->cost = cost;
     return r;
-
- /*   printf("\n_______\n");
-    for (size_t i = 0; i < g_size; i++)
-    {
-        for (size_t j = 0; j < g_size; j++)
-        {
-            printf("%f ", pheromone[i][j]);
-        }
-        printf("\n");
-    }
-   printf("_______\n");
-    
-    for (size_t i = 0; i < g_size; i++)
-    {
-        for (size_t j = 0; j < g_size; j++)
-        {
-            printf("%lu ", matrix[i][j]);
-        }
-        printf("\n");
-    }
-    printf("_______\n"); 
-*/
-  
+ 
 }
