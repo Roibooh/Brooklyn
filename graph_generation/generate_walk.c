@@ -38,5 +38,7 @@ void create_walk_graph(int height, int width)
         if (h_counter != height-2)
             fputs("\n", file);
     }
+    int seconds = 1;
+    wait(&seconds);
     fclose(file);
 }

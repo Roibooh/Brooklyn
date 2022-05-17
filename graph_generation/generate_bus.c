@@ -502,7 +502,7 @@ int* generate_bus(int height, int width)
         }
     }
     //building all the bus lines
-    printf("calling function with q_buses = %i\n", q_buses);
+    //printf("calling function with q_buses = %i\n", q_buses);
     q_buses = 1;////////////////////////////////////////////////////////////////REMOVE LATER
     int start_h = 0;
     int start_w = 0;

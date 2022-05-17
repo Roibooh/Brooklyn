@@ -80,6 +80,8 @@ int *generate_tram(int height, int width)
             counter++;
         }
     }
+    int seconds = 1;
+    wait(&seconds);
     fclose(file);
     return nodes;
 }
