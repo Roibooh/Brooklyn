@@ -281,7 +281,7 @@ struct node* tsp_main(struct graph* g, size_t* destinations, int len_dest,\
     }
     else
     {
-        cl_tsp = ant_colony(len_dest, tsp_dists, destinations[0], is_no_start);
+        cl_tsp = ant_colony(len_dest, tsp_dists, 0, is_no_start);
         
         build_full_path(g, destinations, paths, FALSE, final, cl_tsp,\
                 len_dest);
