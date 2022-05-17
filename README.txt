@@ -16,3 +16,8 @@ path/to/graph/folder/ is the path to a graph stored with the 5 files, one for ea
 a b c d e f g ect.. are the node to be seen in the graph, minimum 2 and no maximum
 The project will show you the most efficient path is there are less than 10 nodes
 If there is more the project will show a path close to the best.
+
+
+Graph Generation:
+graph creator créé juste un graph de base pour tester nos algorithmes -> celui ci est stocké dans le dossier graph
+la fonction generate_graph dans generate_graph.c appelle tout les autres .c pour créer le graph + les 5 transports sont stockés dans des .txt dans le dossier gen_graph
