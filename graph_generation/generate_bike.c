@@ -39,6 +39,6 @@ int generate_bike(int height, int width)
     int seconds = 1;
     wait(&seconds);
     fclose(file);
-    link_bikes("gen_graph/gen_bike.txt", "gen_graph/gen_bikes.txt", height, width, counter, BIKE_WEIGHT);
+    link_bikes("gen_graph/gen_bike.txt", "gen_graph/bikes.txt", height, width, counter, BIKE_WEIGHT);
     return counter;
 }

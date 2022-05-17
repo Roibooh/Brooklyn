@@ -460,7 +460,7 @@ void build_bus_line(int height, int width, int start_h, int start_w, int directi
 int* generate_bus(int height, int width)
 {
     srand(time(0));
-    FILE *file = fopen("gen_graph/gen_bus.txt", "w");
+    FILE *file = fopen("gen_graph/bus.txt", "w");
     if(file == NULL)
     {
         err(1, "Could not find or open file!");

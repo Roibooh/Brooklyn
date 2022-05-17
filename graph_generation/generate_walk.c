@@ -7,7 +7,7 @@
 void create_walk_graph(int height, int width)
 {
     srand(time(0));
-    FILE *file = fopen("gen_graph/gen_main.txt", "w");
+    FILE *file = fopen("gen_graph/main.txt", "w");
     if(file == NULL)
     {
         err(1, "Could not find or open file!");
