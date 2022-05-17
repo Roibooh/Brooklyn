@@ -1,13 +1,8 @@
 #ifndef AUXILARY_H
 #define AUXILARY_H
 
-#include <err.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "link_bikes.h"
-#include <string.h>
 #include <time.h>
-#include <math.h>
 #define NORTH 0
 #define EAST 1
 #define SOUTH 2
@@ -21,5 +16,8 @@ void print_to_walk_file(FILE* file, int node_1, int node_2);
 void regroup(int width, int* nodes, int q_max, int* next_height, int* next_width, int gap);
 void regroup_bus(int width, int* nodes, int* next_height, int* next_width, int gap);
 void next_bus_stop(int height, int width, int direction, int *stop_h, int *stop_w);
+int spawn_too_close(int* metros, int new_h, int new_w, int counter, int width);
+int max(int a, int b);
+int min(int a, int b);
 
 #endif
