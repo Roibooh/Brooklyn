@@ -10,7 +10,7 @@
 int *generate_metro_v1(int height, int width)
 {
     srand(time(0));
-    FILE *file = fopen("gen_graph/gen_metro.txt", "w");
+    FILE *file = fopen("gen_graph/metro.txt", "w");
     if(file == NULL)
     {
         err(1, "Could not find or open file!");
@@ -127,7 +127,7 @@ void next_stop (int height, int width, int *new_h, int *new_w)
 int* generate_metro_v2(int height, int width)
 {
     srand(time(0));
-    FILE *file = fopen("gen_graph/gen_metro.txt", "w");
+    FILE *file = fopen("gen_graph/metro.txt", "w");
     if(file == NULL)
     {
         err(1, "Could not find or open file!");

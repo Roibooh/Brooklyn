@@ -13,7 +13,7 @@
 int *generate_tram(int height, int width)
 {
     srand(time(0));
-    FILE *file = fopen("gen_graph/gen_tram.txt", "w");
+    FILE *file = fopen("gen_graph/tram.txt", "w");
     if(file == NULL)
     {
         err(1, "Could not find or open file!");
@@ -80,6 +80,8 @@ int *generate_tram(int height, int width)
             counter++;
         }
     }
+    int seconds = 1;
+    wait(&seconds);
     fclose(file);
     return nodes;
 }

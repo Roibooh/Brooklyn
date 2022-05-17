@@ -460,7 +460,7 @@ void build_bus_line(int height, int width, int start_h, int start_w, int directi
 int* generate_bus(int height, int width)
 {
     srand(time(0));
-    FILE *file = fopen("gen_graph/gen_bus.txt", "w");
+    FILE *file = fopen("gen_graph/bus.txt", "w");
     if(file == NULL)
     {
         err(1, "Could not find or open file!");
@@ -502,7 +502,7 @@ int* generate_bus(int height, int width)
         }
     }
     //building all the bus lines
-    printf("calling function with q_buses = %i\n", q_buses);
+    //printf("calling function with q_buses = %i\n", q_buses);
     q_buses = 1;////////////////////////////////////////////////////////////////REMOVE LATER
     int start_h = 0;
     int start_w = 0;
