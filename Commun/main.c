@@ -9,6 +9,9 @@
 
 int main(int argc, char** argv)
 {
+    if (argc <= 3)
+        errx(EXIT_FAILURE, "To use refere to README");
+
     void* to_free;
    
     struct graph* g = load_graph(argv[1]);
