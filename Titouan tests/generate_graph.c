@@ -16,11 +16,12 @@
 #define WEST 3
 
 
+
 void generate_graph(int height, int width)
 {
     /*int * buses = generate_bus(height, width);
     int counter = 0;
-    while(*(buses+counter) != -1)
+    while(*(buses+counter) != -1 )
     {
         printf("%i\n", *(buses+counter));
         counter++;
@@ -29,11 +30,15 @@ void generate_graph(int height, int width)
     //create_walk_graph(height, width);
     //int bike_count = generate_bike(height, width);
     //print_generated_bike_graph(21, 21, bike_count);
-    create_walk_graph(height, width);
-    int * metro = generate_metro_v1(height, width); /////////////////////////////DEBUG AT 24*40 seg fault
-    int * tram = generate_tram(height, width);
+
+    //create_walk_graph(height, width);
+    //int *metro = generate_metro_v1(height, width); /////////////////////////////DEBUG AT 24*40 seg fault
+    //generate_metro_v1(height, width);
+    int* metro = generate_metro_v2(height, width);
     print_generated_motorized_graph(height, width, metro, METRO);
-    print_generated_motorized_graph(height, width, tram, TRAM);
+    //int *tram = generate_tram(height, width);
+    //print_generated_motorized_graph(height, width, metro, METRO);
+    //print_generated_motorized_graph(height, width, tram, TRAM);
     //int * trams = generate_tram(height, width);
     //print_generated_tram_graph(height, width, trams);
 }

@@ -1,15 +1,7 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 #include <stddef.h>
-
-
-#define UNDEFINED -1
-#define WALK 0
-#define BUS 1
-#define METRO 2
-#define BIKE 3
-#define TRAM 4
-
+#include "macro.h"
 
 //structur for a node
 struct node

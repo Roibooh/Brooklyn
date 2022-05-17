@@ -279,3 +279,30 @@ void next_bus_stop(int height, int width, int direction, int *stop_h, int *stop_
         break;
     }
 }
+
+//returns 1 (true) if the new metro station is too close from another one
+int spawn_too_close(int* metros, int new_h, int new_w, int counter, int width)
+{
+    int node_h, node_w, node;
+    for (int x = 0; x < counter; ++x)
+    {
+        node = *(metros + x);
+        node_h = node/width;
+        node_w = node%width;
+        if (abs(new_h-node_h) + abs(new_w-node_w) < 8)
+            return 1;
+    }
+    return 0;
+}
+
+int max(int a, int b)
+{
+    return (a>b)? a : b;
+}
+
+int min(int a, int b)
+{
+    if (a<b)
+        return a;
+    return b;
+}
